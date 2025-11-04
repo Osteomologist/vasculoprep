@@ -1,3 +1,8 @@
+html {
+  scroll-behavior: smooth;
+}
+
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Orbitron:wght@700&display=swap');
 /* Smooth page transition */
 body {
@@ -562,4 +567,93 @@ header h1 {
     opacity: 0;
   }
 }
+/* --- FULL MOBILE OPTIMIZATION --- */
+@media (max-width: 900px) {
+  /* General adjustments */
+  body {
+    animation: none; /* Disable gradient animation for smoother mobile performance */
+    background: #000814; /* Solid dark background */
+    padding: 10px;
+    font-size: 15px;
+  }
+
+  /* Headings */
+  main h1, .choose-course-page h1 {
+    font-size: 1.8rem;
+    text-align: center;
+    padding: 0 10px;
+  }
+
+  /* Navbar */
+  nav ul {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* Course grid layout */
+  .course-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+    gap: 15px;
+  }
+
+  /* Course cards */
+  .course-card {
+    padding: 20px;
+    font-size: 1rem;
+    border-radius: 14px;
+  }
+
+  /* Quiz content */
+  #quizContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .question-card {
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 14px;
+  }
+
+  .question-card p {
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .option {
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    font-size: 14px;
+    margin: 8px 0;
+    border-radius: 10px;
+  }
+
+  /* Buttons */
+  button, #submitQuiz, #backButton {
+    width: 100%;
+    font-size: 15px;
+    padding: 14px;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+
+  /* Modal fix */
+  .modal-content {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .modal-score {
+    font-size: 2rem;
+  }
+}
+
 }
