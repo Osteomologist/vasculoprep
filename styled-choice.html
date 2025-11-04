@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Study Method | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      background: linear-gradient(-45deg, #000000, #2b004b, #001d4a);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    body.fade-in {
+      opacity: 1;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      color: #c8c8ff;
+      margin-bottom: 40px;
+    }
+
+    .method-button {
+      width: 280px;
+      padding: 15px 20px;
+      margin: 12px 0;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+
+    /* Hover glow with colors */
+    .scq:hover { box-shadow: 0 0 25px #ff4d4d; border-color: #ff4d4d; }
+    .mtfq:hover { box-shadow: 0 0 25px #4dff4d; border-color: #4dff4d; }
+    .theory:hover { box-shadow: 0 0 25px #4d4dff; border-color: #4d4dff; }
+    .practicals:hover { box-shadow: 0 0 25px #ffb84d; border-color: #ffb84d; }
+    .viva:hover { box-shadow: 0 0 25px #ff4dff; border-color: #ff4dff; }
+
+    .method-button.clicked {
+      box-shadow: 0 0 35px 15px rgba(0, 255, 255, 0.7);
+      transition: box-shadow 0.3s ease;
+    }
+
+    #backButton {
+      margin-top: 40px;
+      background: linear-gradient(90deg, #002aff, #7a00ff);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #backButton:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>First, Choose Your Study Method</h1>
+    <div class="subtitle">Select one of the following study options:</div>
+  </header>
+
+  <main>
+    <button class="method-button scq">Single Choice Questions (SCQ)</button>
+    <button class="method-button mtfq">Multiple True or False Questions (MTFQ)</button>
+    <button class="method-button theory">Theory</button>
+    <button class="method-button practicals">Practicals</button>
+    <button class="method-button viva">Viva</button>
+
+    <button id="backButton">← Back to Home</button>
+  </main>
+
+  <footer>
+    <p>© D Osteomologist 2025</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
+
+      const buttons = document.querySelectorAll(".method-button");
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          btn.classList.add("clicked");
+          setTimeout(() => btn.classList.remove("clicked"), 700);
+
+          if (btn.classList.contains("scq")) {
+            // Redirect SCQ button to choose-course.html
+            setTimeout(() => window.location.href = "choose-course.html", 300);
+          } else {
+            alert(`You selected: ${btn.textContent}\n(Feature coming soon)`);
+          }
+        });
+      });
+
+      const backButton = document.getElementById("backButton");
+      backButton.addEventListener("click", () => {
+        document.body.classList.remove("fade-in");
+        setTimeout(() => window.location.href = "index.html", 600);
+      });
+    });
+  </script>
+
+</body>
+</html>

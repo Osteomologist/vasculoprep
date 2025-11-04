@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoulder & Pectoral Quiz | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(-45deg, #000000, #2b004b, #001d4a);
+      background-size: 400% 400%;
+      animation: gradientMove 12s ease infinite;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    body.fade-in { opacity: 1; }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    #timer {
+      font-size: 1.2rem;
+      background: rgba(255,255,255,0.1);
+      padding: 8px 15px;
+      border-radius: 8px;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    #quizContainer {
+      overflow-y: auto;
+      max-height: 70vh;
+      margin-bottom: 20px;
+      padding-right: 10px;
+    }
+
+    .question-card {
+      background: #1a0033;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option {
+      background: #2b004b;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      transition: border 0.2s, background 0.2s;
+      text-align: left;
+      color: white;
+    }
+
+    .option.selected {
+      border: 2px solid #00ffff;
+      background: rgba(0,255,255,0.1);
+    }
+
+    .option:hover {
+      background: rgba(0,255,255,0.05);
+    }
+
+    .option.correct {
+      border: 2px solid #00ff66;
+      background: rgba(0,255,102,0.1);
+    }
+
+    .option.wrong {
+      border: 2px solid #ff4d4d;
+      background: rgba(255,77,77,0.1);
+    }
+
+    #tracker {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tracker-box {
+      flex: 1 1 30%;
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    #submitQuiz {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(90deg, #002aff, #7a00ff);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    #submitQuiz:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00ffff;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Shoulder & Pectoral Quiz</h1>
+    <div id="timer">--:--</div>
+  </header>
+
+  <main>
+    <div id="tracker">
+      <div class="tracker-box">Attempted: <span id="attempted">0</span></div>
+      <div class="tracker-box">Skipped: <span id="skipped">0</span></div>
+      <div class="tracker-box">Progress: <span id="progress">0%</span></div>
+    </div>
+
+    <div id="quizContainer">
+      <!-- Questions will be inserted here -->
+    </div>
+
+    <button id="submitQuiz">Submit Quiz</button>
+  </main>
+
+  <script>
+    // Define questions array with correct answers
+    const questionsArray = [
+  { 
+    question: "Which of the following muscles is not part of the rotator cuff?", 
+    options: ["Supraspinatus", "Infraspinatus", "Teres minor", "Teres major"], 
+    correct: "Teres major",
+    explanation: "The rotator cuff consists of four muscles: supraspinatus, infraspinatus, teres minor, and subscapularis. Teres major is not part of the rotator cuff; it's a different muscle that acts as an adductor and medial rotator of the arm."
+  },
+  { 
+    question: "The chief abductor of the shoulder joint beyond 15° is:", 
+    options: ["Supraspinatus", "Deltoid", "Trapezius", "Teres major"], 
+    correct: "Deltoid",
+    explanation: "While supraspinatus initiates the first 15° of abduction, the deltoid muscle is the primary abductor for abduction beyond 15° up to 90°."
+  },
+  { 
+    question: "The first 15° of abduction of the arm at the shoulder joint is initiated by:", 
+    options: ["Deltoid", "Trapezius", "Supraspinatus", "Subscapularis"], 
+    correct: "Supraspinatus",
+    explanation: "Supraspinatus initiates abduction from 0-15°, after which the deltoid takes over as the primary abductor."
+  },
+  { 
+    question: "The axillary nerve supplies all of the following except:", 
+    options: ["Deltoid", "Teres minor", "Teres major", "Skin over deltoid"], 
+    correct: "Teres major",
+    explanation: "The axillary nerve (C5-C6) supplies the deltoid, teres minor, and skin over the deltoid (regimental badge area). Teres major is supplied by the lower subscapular nerve."
+  },
+  { 
+    question: "The suprascapular nerve supplies:", 
+    options: ["Supraspinatus and infraspinatus", "Supraspinatus and subscapularis", "Infraspinatus and teres minor", "Teres minor and teres major"], 
+    correct: "Supraspinatus and infraspinatus",
+    explanation: "The suprascapular nerve (C5-C6) supplies both supraspinatus and infraspinatus muscles, which are important rotator cuff muscles."
+  },
+  { 
+    question: "The clavipectoral fascia encloses all of the following except:", 
+    options: ["Subclavius", "Pectoralis minor", "Pectoralis major", "Costocoracoid membrane"], 
+    correct: "Pectoralis major",
+    explanation: "The clavipectoral fascia encloses subclavius and pectoralis minor, but pectoralis major lies superficial to this fascia."
+  },
+  { 
+    question: "The cephalic vein pierces which structure to join the axillary vein?", 
+    options: ["Costocoracoid membrane", "Clavipectoral fascia", "Pectoral fascia", "Deep fascia of the arm"], 
+    correct: "Clavipectoral fascia",
+    explanation: "The cephalic vein runs in the deltopectoral groove and pierces the clavipectoral fascia to drain into the axillary vein."
+  },
+  { 
+    question: "The lateral pectoral nerve supplies:", 
+    options: ["Pectoralis major", "Pectoralis minor", "Both pectoralis major and minor", "Serratus anterior"], 
+    correct: "Pectoralis major",
+    explanation: "The lateral pectoral nerve primarily supplies the pectoralis major muscle, while the medial pectoral nerve supplies both pectoralis major and minor."
+  },
+  { 
+    question: "The long thoracic nerve supplies:", 
+    options: ["Pectoralis minor", "Serratus anterior", "Subclavius", "Trapezius"], 
+    correct: "Serratus anterior",
+    explanation: "The long thoracic nerve (C5-C7) supplies the serratus anterior muscle. Damage to this nerve causes winging of the scapula."
+  },
+  { 
+    question: "Damage to the long thoracic nerve leads to:", 
+    options: ["Drooping shoulder", "Winging of scapula", "Inability to abduct arm", "Flattening of deltoid"], 
+    correct: "Winging of scapula",
+    explanation: "The long thoracic nerve innervates serratus anterior, which holds the scapula against the thoracic wall. Its paralysis causes winging of the scapula."
+  },
+  { 
+    question: "The chief flexor of the shoulder joint is:", 
+    options: ["Pectoralis major", "Deltoid (anterior fibers)", "Coracobrachialis", "Biceps brachii"], 
+    correct: "Deltoid (anterior fibers)",
+    explanation: "The anterior fibers of the deltoid are the primary flexors of the shoulder joint, assisted by pectoralis major and coracobrachialis."
+  },
+  { 
+    question: "Which muscle inserts into the bicipital groove of the humerus?", 
+    options: ["Pectoralis major", "Latissimus dorsi", "Teres major", "All of the above"], 
+    correct: "All of the above",
+    explanation: "Pectoralis major inserts into the lateral lip, latissimus dorsi into the floor, and teres major into the medial lip of the bicipital (intertubercular) groove."
+  },
+  { 
+    question: "The suprascapular notch is bridged by the:", 
+    options: ["Coracoacromial ligament", "Superior transverse scapular ligament", "Inferior transverse scapular ligament", "Glenohumeral ligament"], 
+    correct: "Superior transverse scapular ligament",
+    explanation: "The superior transverse scapular ligament converts the suprascapular notch into a foramen, through which the suprascapular nerve passes."
+  },
+  { 
+    question: "The suprascapular artery passes:", 
+    options: ["Over the ligament", "Under the ligament", "Through the ligament", "Alongside the nerve"], 
+    correct: "Over the ligament",
+    explanation: "The suprascapular artery passes above the superior transverse scapular ligament, while the suprascapular nerve passes below it."
+  },
+  { 
+    question: "The glenohumeral joint is classified as:", 
+    options: ["Hinge joint", "Ball and socket joint", "Pivot joint", "Plane joint"], 
+    correct: "Ball and socket joint",
+    explanation: "The glenohumeral (shoulder) joint is a synovial ball and socket joint, allowing multiaxial movement with great mobility but less stability."
+  },
+  { 
+    question: "The glenoid labrum:", 
+    options: ["Deepens the glenoid cavity", "Weakens the joint", "Is made of elastic cartilage", "Is continuous with capsule only superiorly"], 
+    correct: "Deepens the glenoid cavity",
+    explanation: "The glenoid labrum is a fibrocartilaginous rim that deepens the shallow glenoid cavity, improving joint stability."
+  },
+  { 
+    question: "The main stabilizers of the shoulder joint are:", 
+    options: ["Bony structures", "Rotator cuff muscles", "Ligaments", "Capsule"], 
+    correct: "Rotator cuff muscles",
+    explanation: "While all contribute, the rotator cuff muscles (SITS: supraspinatus, infraspinatus, teres minor, subscapularis) are the primary dynamic stabilizers."
+  },
+  { 
+    question: "The coracoacromial arch prevents:", 
+    options: ["Upward dislocation of humeral head", "Downward dislocation", "Posterior dislocation", "Anterior dislocation"], 
+    correct: "Upward dislocation of humeral head",
+    explanation: "The coracoacromial arch, formed by coracoid process, acromion, and coracoacromial ligament, prevents superior displacement of the humeral head."
+  },
+  { 
+    question: "The most common dislocation of the shoulder is:", 
+    options: ["Posterior", "Anterior inferior", "Superior", "Medial"], 
+    correct: "Anterior inferior",
+    explanation: "Anterior inferior dislocation is most common (95-97% of cases), often resulting from falls on an outstretched hand."
+  },
+  { 
+    question: "Erb's palsy involves which roots?", 
+    options: ["C5–C6", "C6–C7", "C7–C8", "C8–T1"], 
+    correct: "C5–C6",
+    explanation: "Erb's palsy involves upper trunk (C5-C6) injury, causing 'waiter's tip' deformity with arm adducted, medially rotated, and extended."
+  },
+  { 
+    question: "In Erb's palsy, which muscle is not affected?", 
+    options: ["Supraspinatus", "Infraspinatus", "Deltoid", "Pectoralis major"], 
+    correct: "Pectoralis major",
+    explanation: "Pectoralis major is supplied by medial and lateral pectoral nerves (C5-T1), which are not primarily affected in Erb's palsy (C5-C6 injury)."
+  },
+  { 
+    question: "The quadrangular space transmits:", 
+    options: ["Axillary nerve and posterior circumflex humeral artery", "Radial nerve and profunda brachii artery", "Suprascapular nerve and artery", "Subscapular nerve and artery"], 
+    correct: "Axillary nerve and posterior circumflex humeral artery",
+    explanation: "The quadrangular space is bounded by teres minor (superior), teres major (inferior), long head of triceps (medial), and humerus (lateral)."
+  },
+  { 
+    question: "The triangular space transmits:", 
+    options: ["Circumflex scapular artery", "Posterior circumflex humeral artery", "Axillary nerve", "Suprascapular nerve"], 
+    correct: "Circumflex scapular artery",
+    explanation: "The triangular space transmits the circumflex scapular artery, a branch of the subscapular artery that participates in the scapular anastomosis."
+  },
+  { 
+    question: "The triangular interval contains:", 
+    options: ["Radial nerve and profunda brachii artery", "Axillary nerve and artery", "Circumflex scapular artery", "Subscapular artery"], 
+    correct: "Radial nerve and profunda brachii artery",
+    explanation: "The triangular interval transmits the radial nerve and profunda brachii artery from the axilla to the posterior compartment of the arm."
+  },
+  { 
+    question: "The acromioclavicular joint is a:", 
+    options: ["Plane synovial joint", "Saddle joint", "Condyloid joint", "Pivot joint"], 
+    correct: "Plane synovial joint",
+    explanation: "The AC joint is a plane synovial joint that allows gliding movements between the acromion and clavicle."
+  },
+  { 
+    question: "The coracoclavicular ligament consists of:", 
+    options: ["Conoid and trapezoid parts", "Conoid and coracoacromial parts", "Trapezoid and acromial parts", "None of the above"], 
+    correct: "Conoid and trapezoid parts",
+    explanation: "The coracoclavicular ligament has two parts: conoid (medial) and trapezoid (lateral), providing strong stabilization to the AC joint."
+  },
+  { 
+    question: "The chief extensor of the shoulder joint is:", 
+    options: ["Latissimus dorsi", "Teres major", "Posterior fibers of deltoid", "All of the above"], 
+    correct: "All of the above",
+    explanation: "All these muscles contribute to shoulder extension: latissimus dorsi, teres major, and posterior deltoid fibers."
+  },
+  { 
+    question: "The pectoralis major muscle causes:", 
+    options: ["Adduction and medial rotation", "Abduction and lateral rotation", "Flexion and abduction", "Extension and lateral rotation"], 
+    correct: "Adduction and medial rotation",
+    explanation: "Pectoralis major is a powerful adductor and medial rotator of the arm, also assisting in flexion when the arm is extended."
+  },
+  { 
+    question: "The acromial end of the clavicle articulates with:", 
+    options: ["Acromion process", "Coracoid process", "Glenoid cavity", "Manubrium sterni"], 
+    correct: "Acromion process",
+    explanation: "The lateral/acromial end of the clavicle articulates with the acromion process of the scapula at the acromioclavicular joint."
+  },
+  { 
+    question: "Fracture of the middle third of the clavicle typically causes:", 
+    options: ["Upward displacement of medial fragment", "Downward displacement of lateral fragment", "Both A and B", "None"], 
+    correct: "Both A and B",
+    explanation: "The sternocleidomastoid pulls the medial fragment upward, while the weight of the arm pulls the lateral fragment downward."
+  },
+  { 
+    question: "The subacromial bursa lies between:", 
+    options: ["Deltoid and humerus", "Supraspinatus and acromion", "Teres major and capsule", "Coracoid and pectoralis minor"], 
+    correct: "Supraspinatus and acromion",
+    explanation: "The subacromial bursa reduces friction between the supraspinatus tendon and the coracoacromial arch during shoulder movements."
+  },
+  { 
+    question: "The nerve supply of pectoralis minor is:", 
+    options: ["Medial pectoral nerve", "Lateral pectoral nerve", "Both medial and lateral", "Long thoracic nerve"], 
+    correct: "Medial pectoral nerve",
+    explanation: "Pectoralis minor is primarily supplied by the medial pectoral nerve, though it may receive some fibers from the lateral pectoral nerve."
+  },
+  { 
+    question: "The nerve supply of subclavius is from:", 
+    options: ["Nerve to subclavius (C5, C6)", "Suprascapular nerve", "Axillary nerve", "Dorsal scapular nerve"], 
+    correct: "Nerve to subclavius (C5, C6)",
+    explanation: "The subclavius muscle is supplied by the nerve to subclavius, which arises from the upper trunk of the brachial plexus (C5-C6)."
+  },
+  { 
+    question: "The scapular anastomosis provides collateral circulation between:", 
+    options: ["Subclavian and axillary arteries", "Axillary and brachial arteries", "Subclavian and brachial arteries", "Axillary and radial arteries"], 
+    correct: "Subclavian and axillary arteries",
+    explanation: "The scapular anastomosis connects the first part of the subclavian artery with the third part of the axillary artery, providing collateral circulation."
+  },
+  { 
+    question: "The nerve most at risk in surgical neck fracture of humerus is:", 
+    options: ["Axillary nerve", "Radial nerve", "Musculocutaneous nerve", "Suprascapular nerve"], 
+    correct: "Axillary nerve",
+    explanation: "The axillary nerve winds around the surgical neck of the humerus and is most vulnerable in fractures at this site."
+  },
+  { 
+    question: "The deltoid tuberosity is located on the:", 
+    options: ["Shaft of humerus", "Scapula", "Clavicle", "Radius"], 
+    correct: "Shaft of humerus",
+    explanation: "The deltoid tuberosity is a rough elevation on the lateral surface of the shaft of the humerus where the deltoid muscle inserts."
+  },
+  { 
+    question: "The angle of scapula that corresponds to the 7th thoracic vertebra is:", 
+    options: ["Superior angle", "Inferior angle", "Lateral angle", "Medial border"], 
+    correct: "Inferior angle",
+    explanation: "The inferior angle of the scapula lies at the level of the 7th thoracic vertebra and is an important surface landmark."
+  },
+  { 
+    question: "The chief lateral rotator of the shoulder joint is:", 
+    options: ["Infraspinatus", "Teres minor", "Both A and B", "Subscapularis"], 
+    correct: "Both A and B",
+    explanation: "Both infraspinatus and teres minor are the primary lateral rotators of the shoulder joint."
+  },
+  { 
+    question: "The chief medial rotator of the arm is:", 
+    options: ["Subscapularis", "Teres major", "Latissimus dorsi", "All of the above"], 
+    correct: "All of the above",
+    explanation: "Subscapularis, teres major, and latissimus dorsi all contribute to medial rotation of the arm."
+  },
+  { 
+    question: "The pectoralis minor arises from ribs:", 
+    options: ["1 to 3", "2 to 5", "3 to 5", "4 to 6"], 
+    correct: "3 to 5",
+    explanation: "Pectoralis minor originates from the 3rd to 5th ribs near their costal cartilages and inserts into the coracoid process."
+  },
+  { 
+    question: "The clavipectoral fascia extends between:", 
+    options: ["Clavicle and axillary fascia", "Clavicle and pectoralis major", "Scapula and humerus", "Ribs and coracoid process"], 
+    correct: "Clavicle and axillary fascia",
+    explanation: "The clavipectoral fascia extends from the clavicle above to the axillary fascia below, enclosing subclavius and pectoralis minor."
+  },
+  { 
+    question: "The acromioclavicular joint is stabilized by:", 
+    options: ["Coracoclavicular ligament", "Glenohumeral ligament", "Transverse humeral ligament", "Coracoacromial ligament"], 
+    correct: "Coracoclavicular ligament",
+    explanation: "The coracoclavicular ligament (conoid and trapezoid parts) is the main stabilizer of the AC joint, preventing superior displacement."
+  },
+  { 
+    question: "The subscapular bursa communicates with:", 
+    options: ["Shoulder joint cavity", "Subacromial bursa", "Coracobrachialis sheath", "None"], 
+    correct: "Shoulder joint cavity",
+    explanation: "The subscapular bursa communicates with the shoulder joint cavity and reduces friction between the subscapularis tendon and the neck of the scapula."
+  },
+  { 
+    question: "The muscle tested when a patient abducts the arm against resistance from 15° to 90° is:", 
+    options: ["Deltoid", "Supraspinatus", "Trapezius", "Serratus anterior"], 
+    correct: "Deltoid",
+    explanation: "The deltoid is tested by resisted abduction from 15° to 90°, while supraspinatus is tested for the initial 0-15° of abduction."
+  },
+  { 
+    question: "The muscle tested when the patient initiates abduction from 0° is:", 
+    options: ["Deltoid", "Supraspinatus", "Infraspinatus", "Teres minor"], 
+    correct: "Supraspinatus",
+    explanation: "Supraspinatus is specifically tested by resisted initiation of abduction from 0° position."
+  },
+  { 
+    question: "The coracoacromial ligament extends between:", 
+    options: ["Coracoid and acromion processes", "Coracoid and clavicle", "Acromion and clavicle", "Coracoid and humerus"], 
+    correct: "Coracoid and acromion processes",
+    explanation: "The coracoacromial ligament extends between the coracoid and acromion processes, forming part of the coracoacromial arch."
+  },
+  { 
+    question: "The axillary artery is divided by:", 
+    options: ["Pectoralis minor", "Pectoralis major", "Subclavius", "Clavipectoral fascia"], 
+    correct: "Pectoralis minor",
+    explanation: "The axillary artery is divided into three parts by the pectoralis minor muscle: first part (medial), second part (deep), third part (lateral)."
+  },
+  { 
+    question: "The first part of axillary artery gives off:", 
+    options: ["Superior thoracic artery", "Thoracoacromial artery", "Lateral thoracic artery", "Subscapular artery"], 
+    correct: "Superior thoracic artery",
+    explanation: "The first part of the axillary artery gives off the superior thoracic artery, which supplies the first intercostal space and serratus anterior."
+  },
+  { 
+    question: "The deltopectoral groove transmits:", 
+    options: ["Cephalic vein", "Basilic vein", "Median cubital vein", "Lateral thoracic vein"], 
+    correct: "Cephalic vein",
+    explanation: "The deltopectoral groove contains the cephalic vein and the deltopectoral lymph nodes."
+  },
+  { 
+    question: "The suspensory ligament of axilla is derived from:", 
+    options: ["Clavipectoral fascia", "Pectoral fascia", "Axillary sheath", "Coracoclavicular ligament"], 
+    correct: "Clavipectoral fascia",
+    explanation: "The suspensory ligament of the axilla is the downward prolongation of the clavipectoral fascia, which pulls the axillary fascia upward."
+  },
+  { 
+    question: "Which muscle forms the posterior axillary fold?", 
+    options: ["Pectoralis major", "Latissimus dorsi and teres major", "Deltoid", "Subscapularis"], 
+    correct: "Latissimus dorsi and teres major",
+    explanation: "The posterior axillary fold is formed by the latissimus dorsi and teres major muscles."
+  },
+  { 
+    question: "Which muscle forms the anterior axillary fold?", 
+    options: ["Pectoralis major", "Pectoralis minor", "Serratus anterior", "Subclavius"], 
+    correct: "Pectoralis major",
+    explanation: "The anterior axillary fold is formed by the lower border of the pectoralis major muscle."
+  },
+  { 
+    question: "Which muscle forms the medial wall of the axilla?", 
+    options: ["Serratus anterior", "Pectoralis major", "Latissimus dorsi", "Teres major"], 
+    correct: "Serratus anterior",
+    explanation: "The medial wall of the axilla is formed by the serratus anterior muscle covering the upper ribs."
+  },
+  { 
+    question: "The apex of the axilla is bounded by all except:", 
+    options: ["Clavicle", "Upper border of scapula", "Outer border of first rib", "Pectoralis minor"], 
+    correct: "Pectoralis minor",
+    explanation: "The apex is bounded by the clavicle (anterior), first rib (medial), and upper border of scapula (posterior). Pectoralis minor is not part of the apex."
+  },
+  { 
+    question: "The floor of the axilla is formed by:", 
+    options: ["Axillary fascia and skin", "Clavipectoral fascia", "Serratus anterior", "Pectoralis major"], 
+    correct: "Axillary fascia and skin",
+    explanation: "The floor of the axilla is formed by the axillary fascia and skin, forming the armpit."
+  },
+  { 
+    question: "The axillary vein lies:", 
+    options: ["Medial to axillary artery", "Lateral to axillary artery", "Posterior to axillary artery", "Anterior to axillary artery"], 
+    correct: "Medial to axillary artery",
+    explanation: "The axillary vein lies medial to the axillary artery throughout its course in the axilla."
+  },
+  { 
+    question: "The cords of the brachial plexus are named in relation to:", 
+    options: ["Axillary artery", "Axillary vein", "Pectoralis minor", "Clavicle"], 
+    correct: "Axillary artery",
+    explanation: "The cords of the brachial plexus are named lateral, medial, and posterior based on their relationship to the second part of the axillary artery."
+  },
+  { 
+    question: "The lateral wall of the axilla is formed by:", 
+    options: ["Intertubercular sulcus of humerus", "Clavicle", "Pectoralis minor", "Serratus anterior"], 
+    correct: "Intertubercular sulcus of humerus",
+    explanation: "The lateral wall is formed by the intertubercular sulcus of the humerus, where the tendons of muscles inserting into the bicipital groove are located."
+  },
+  { 
+    question: "The subscapular artery gives rise to all except:", 
+    options: ["Circumflex scapular artery", "Thoracodorsal artery", "Posterior circumflex humeral artery", "None of the above"], 
+    correct: "Posterior circumflex humeral artery",
+    explanation: "The subscapular artery gives off the circumflex scapular and thoracodorsal arteries. The posterior circumflex humeral artery arises directly from the axillary artery."
+  },
+  { 
+    question: "The posterior cord of the brachial plexus gives rise to:", 
+    options: ["Axillary and radial nerves", "Median nerve", "Ulnar nerve", "Musculocutaneous nerve"], 
+    correct: "Axillary and radial nerves",
+    explanation: "The posterior cord gives rise to the axillary nerve, radial nerve, and upper and lower subscapular nerves."
+  },
+  { 
+    question: "The lateral cord of the brachial plexus contributes to:", 
+    options: ["Median and musculocutaneous nerves", "Radial and axillary nerves", "Ulnar nerve", "Dorsal scapular nerve"], 
+    correct: "Median and musculocutaneous nerves",
+    explanation: "The lateral cord gives rise to the musculocutaneous nerve and contributes the lateral root to the median nerve."
+  },
+  { 
+    question: "The medial cord gives rise to:", 
+    options: ["Ulnar nerve", "Medial cutaneous nerve of arm and forearm", "Medial root of median nerve", "All of the above"], 
+    correct: "All of the above",
+    explanation: "The medial cord gives rise to the ulnar nerve, medial cutaneous nerves of arm and forearm, and the medial root of the median nerve."
+  },
+  { 
+    question: "Which artery participates in the scapular anastomosis?", 
+    options: ["Suprascapular artery", "Dorsal scapular artery", "Circumflex scapular artery", "All of the above"], 
+    correct: "All of the above",
+    explanation: "The scapular anastomosis involves suprascapular, dorsal scapular, and circumflex scapular arteries, providing collateral circulation between subclavian and axillary arteries."
+  },
+  { 
+    question: "The clavicle ossifies by:", 
+    options: ["Membranous ossification only", "Endochondral ossification only", "Both membranous and endochondral", "Secondary ossification only"], 
+    correct: "Both membranous and endochondral",
+    explanation: "The clavicle is unique as it ossifies both in membrane (for the shaft) and in cartilage (for the ends), making it the first bone to ossify."
+  },
+  { 
+    question: "The first bone to start ossifying in the body is:", 
+    options: ["Clavicle", "Femur", "Mandible", "Scapula"], 
+    correct: "Clavicle",
+    explanation: "The clavicle begins ossifying in the 5th-6th week of fetal development, making it the first bone to ossify."
+  },
+  { 
+    question: "The last center of ossification in the clavicle appears at:", 
+    options: ["Sternal end", "Acromial end", "Shaft", "Medial border"], 
+    correct: "Sternal end",
+    explanation: "The sternal end of the clavicle is the last to ossify, with its epiphysis appearing around 18-20 years and fusing by 25 years."
+  },
+  { 
+    question: "The coracoid process gives attachment to all except:", 
+    options: ["Coracobrachialis", "Short head of biceps", "Pectoralis minor", "Supraspinatus"], 
+    correct: "Supraspinatus",
+    explanation: "Supraspinatus originates from the supraspinous fossa, not the coracoid process. The coracoid gives attachment to coracobrachialis, short head of biceps, and pectoralis minor."
+  },
+  { 
+    question: "The supraglenoid tubercle gives attachment to:", 
+    options: ["Long head of biceps", "Short head of biceps", "Long head of triceps", "Coracobrachialis"], 
+    correct: "Long head of biceps",
+    explanation: "The supraglenoid tubercle provides attachment for the long head of biceps brachii muscle."
+  },
+  { 
+    question: "The infraglenoid tubercle gives attachment to:", 
+    options: ["Long head of triceps", "Short head of biceps", "Coracobrachialis", "Teres major"], 
+    correct: "Long head of triceps",
+    explanation: "The infraglenoid tubercle provides attachment for the long head of triceps brachii muscle."
+  },
+  { 
+    question: "The supraspinatus muscle inserts into:", 
+    options: ["Greater tubercle of humerus", "Lesser tubercle of humerus", "Intertubercular sulcus", "Acromion process"], 
+    correct: "Greater tubercle of humerus",
+    explanation: "Supraspinatus inserts into the highest facet of the greater tubercle of the humerus."
+  },
+  { 
+    question: "The subscapularis inserts into:", 
+    options: ["Lesser tubercle of humerus", "Greater tubercle of humerus", "Deltoid tuberosity", "Coracoid process"], 
+    correct: "Lesser tubercle of humerus",
+    explanation: "Subscapularis is the only rotator cuff muscle that inserts into the lesser tubercle of the humerus."
+  },
+  { 
+    question: "The teres major inserts into:", 
+    options: ["Medial lip of intertubercular sulcus", "Lateral lip of intertubercular sulcus", "Floor of intertubercular sulcus", "Greater tubercle"], 
+    correct: "Medial lip of intertubercular sulcus",
+    explanation: "Teres major inserts into the medial lip of the intertubercular sulcus of the humerus."
+  },
+  { 
+    question: "The latissimus dorsi inserts into:", 
+    options: ["Floor of intertubercular sulcus", "Medial lip of intertubercular sulcus", "Lateral lip", "Lesser tubercle"], 
+    correct: "Floor of intertubercular sulcus",
+    explanation: "Latissimus dorsi inserts into the floor of the intertubercular sulcus of the humerus."
+  },
+  { 
+    question: "The subacromial bursa does not communicate with:", 
+    options: ["Shoulder joint cavity", "Subdeltoid bursa", "Subscapular bursa", "Coracobrachialis sheath"], 
+    correct: "Shoulder joint cavity",
+    explanation: "The subacromial bursa lies between the deltoid and supraspinatus tendon but does not normally communicate with the shoulder joint cavity."
+  },
+  { 
+    question: "The glenohumeral joint capsule is weakest:", 
+    options: ["Inferiorly", "Superiorly", "Anteriorly", "Posteriorly"], 
+    correct: "Inferiorly",
+    explanation: "The joint capsule is weakest inferiorly, which explains why anterior-inferior dislocations are most common."
+  },
+  { 
+    question: "Abduction of the arm at the shoulder joint involves all except:", 
+    options: ["Supraspinatus", "Deltoid", "Trapezius", "Latissimus dorsi"], 
+    correct: "Latissimus dorsi",
+    explanation: "Latissimus dorsi is an adductor, not an abductor. It opposes abduction movement."
+  },
+  { 
+    question: "The deltoid muscle is supplied by:", 
+    options: ["Axillary nerve", "Radial nerve", "Musculocutaneous nerve", "Lateral pectoral nerve"], 
+    correct: "Axillary nerve",
+    explanation: "The deltoid muscle is supplied by the axillary nerve (C5-C6), which also supplies teres minor and skin over the deltoid."
+  },
+  { 
+    question: "The scapular notch transmits:", 
+    options: ["Suprascapular nerve", "Suprascapular artery", "Axillary nerve", "Subscapular nerve"], 
+    correct: "Suprascapular nerve",
+    explanation: "The suprascapular nerve passes through the scapular notch (below the superior transverse scapular ligament), while the artery passes above the ligament."
+  },
+  { 
+    question: "The posterior circumflex humeral artery is a branch of:", 
+    options: ["Axillary artery (third part)", "Subclavian artery", "Brachial artery", "Thoracoacromial artery"], 
+    correct: "Axillary artery (third part)",
+    explanation: "The posterior circumflex humeral artery arises from the third part of the axillary artery and passes through the quadrangular space with the axillary nerve."
+  },
+  { 
+    question: "The thoracoacromial artery gives which branches?", 
+    options: ["Pectoral, clavicular, acromial, deltoid", "Pectoral and subscapular", "Axillary and brachial", "Acromial and circumflex"], 
+    correct: "Pectoral, clavicular, acromial, deltoid",
+    explanation: "The thoracoacromial artery has four branches: pectoral, clavicular, acromial, and deltoid."
+  },
+  { 
+    question: "The chief lateral rotator of humerus is:", 
+    options: ["Infraspinatus", "Teres minor", "Both A and B", "Subscapularis"], 
+    correct: "Both A and B",
+    explanation: "Both infraspinatus and teres minor are the primary lateral rotators of the shoulder joint."
+  },
+  { 
+    question: "The chief adductor of the shoulder joint is:", 
+    options: ["Pectoralis major", "Latissimus dorsi", "Both A and B", "Teres minor"], 
+    correct: "Both A and B",
+    explanation: "Both pectoralis major and latissimus dorsi are powerful adductors of the arm."
+  },
+  { 
+    question: "The musculocutaneous nerve pierces:", 
+    options: ["Coracobrachialis", "Biceps brachii", "Brachialis", "Deltoid"], 
+    correct: "Coracobrachialis",
+    explanation: "The musculocutaneous nerve pierces the coracobrachialis muscle in the arm."
+  },
+  { 
+    question: "The axillary nerve passes through the:", 
+    options: ["Quadrangular space", "Triangular space", "Triangular interval", "Suprascapular foramen"], 
+    correct: "Quadrangular space",
+    explanation: "The axillary nerve passes through the quadrangular space along with the posterior circumflex humeral artery."
+  },
+  { 
+    question: "The posterior wall of the axilla includes:", 
+    options: ["Subscapularis, teres major, latissimus dorsi", "Pectoralis major and minor", "Serratus anterior", "Clavipectoral fascia"], 
+    correct: "Subscapularis, teres major, latissimus dorsi",
+    explanation: "The posterior wall is formed by subscapularis, teres major, and latissimus dorsi muscles."
+  },
+  { 
+    question: "The first rib is related superiorly to:", 
+    options: ["Subclavian vein", "Subclavian artery", "Brachial plexus trunks", "All of the above"], 
+    correct: "All of the above",
+    explanation: "The first rib has the subclavian vein anteriorly, subclavian artery and brachial plexus trunks superiorly in the supraclavicular fossa."
+  },
+  { 
+    question: "The coracobrachialis acts to:", 
+    options: ["Flex and adduct the arm", "Extend the arm", "Abduct the arm", "Laterally rotate the arm"], 
+    correct: "Flex and adduct the arm",
+    explanation: "Coracobrachialis flexes and adducts the arm at the shoulder joint."
+  },
+  { 
+    question: "Winging of scapula occurs due to paralysis of:", 
+    options: ["Serratus anterior", "Rhomboids", "Trapezius", "Deltoid"], 
+    correct: "Serratus anterior",
+    explanation: "Winging of scapula results from serratus anterior paralysis due to long thoracic nerve injury."
+  },
+  { 
+    question: "The dorsal scapular nerve supplies:", 
+    options: ["Rhomboid major and minor", "Levator scapulae", "Both A and B", "Serratus anterior"], 
+    correct: "Both A and B",
+    explanation: "The dorsal scapular nerve (C5) supplies both rhomboid major and minor muscles and may also supply levator scapulae."
+  },
+  { 
+    question: "The nerve supply of latissimus dorsi is:", 
+    options: ["Thoracodorsal nerve", "Long thoracic nerve", "Dorsal scapular nerve", "Subscapular nerve"], 
+    correct: "Thoracodorsal nerve",
+    explanation: "Latissimus dorsi is supplied by the thoracodorsal nerve (C6-C8), a branch of the posterior cord of brachial plexus."
+  },
+  { 
+    question: "The subscapularis muscle is supplied by:", 
+    options: ["Upper and lower subscapular nerves", "Axillary nerve", "Radial nerve", "Long thoracic nerve"], 
+    correct: "Upper and lower subscapular nerves",
+    explanation: "Subscapularis receives innervation from both upper and lower subscapular nerves (C5-C6)."
+  },
+  { 
+    question: "The teres major is supplied by:", 
+    options: ["Lower subscapular nerve", "Axillary nerve", "Thoracodorsal nerve", "Dorsal scapular nerve"], 
+    correct: "Lower subscapular nerve",
+    explanation: "Teres major is supplied by the lower subscapular nerve (C5-C6)."
+  },
+  { 
+    question: "The blood supply of deltoid is chiefly from:", 
+    options: ["Posterior circumflex humeral artery", "Anterior circumflex humeral artery", "Thoracoacromial artery", "Both A and C"], 
+    correct: "Both A and C",
+    explanation: "The deltoid receives blood supply from the posterior circumflex humeral artery and the deltoid branch of thoracoacromial artery."
+  },
+  { 
+    question: "The chief nerve supply to pectoralis major is:", 
+    options: ["Both medial and lateral pectoral nerves", "Only lateral pectoral nerve", "Only medial pectoral nerve", "Thoracodorsal nerve"], 
+    correct: "Both medial and lateral pectoral nerves",
+    explanation: "Pectoralis major receives dual innervation from both medial and lateral pectoral nerves."
+  },
+  { 
+    question: "The acromion process provides attachment to:", 
+    options: ["Deltoid and trapezius", "Pectoralis major and deltoid", "Trapezius and latissimus dorsi", "Deltoid and supraspinatus"], 
+    correct: "Deltoid and trapezius",
+    explanation: "The acromion process provides attachment for the deltoid muscle and the trapezius muscle inserts on its superior surface."
+  },
+  { 
+    question: "The deltoid action is opposed by:", 
+    options: ["Pectoralis major and latissimus dorsi", "Trapezius", "Serratus anterior", "Subclavius"], 
+    correct: "Pectoralis major and latissimus dorsi",
+    explanation: "Pectoralis major and latissimus dorsi oppose the deltoid's abduction action by adducting the arm."
+  },
+  { 
+    question: "Subdeltoid bursa inflammation causes pain on:", 
+    options: ["Abduction", "Flexion", "Extension", "Rotation"], 
+    correct: "Abduction",
+    explanation: "Subdeltoid bursitis causes pain during abduction as the inflamed bursa is compressed between the deltoid and humeral head."
+  },
+  { 
+    question: "The rotator cuff tendons blend with the joint capsule at:", 
+    options: ["All sides except inferiorly", "Only superiorly", "Only anteriorly", "Only posteriorly"], 
+    correct: "All sides except inferiorly",
+    explanation: "The rotator cuff tendons blend with the joint capsule superiorly, anteriorly, and posteriorly, but the inferior aspect remains relatively weak."
+  },
+  { 
+    question: "The chief movement restricted in rotator cuff tear is:", 
+    options: ["Abduction", "Adduction", "Flexion", "Extension"], 
+    correct: "Abduction",
+    explanation: "Rotator cuff tears, especially supraspinatus tears, primarily affect abduction of the arm."
+  },
+  { 
+    question: "The deltopectoral triangle is bounded by all except:", 
+    options: ["Clavicle (superiorly)", "Pectoralis major (medially)", "Deltoid (laterally)", "Serratus anterior (inferiorly)"], 
+    correct: "Serratus anterior (inferiorly)",
+    explanation: "The deltopectoral triangle is bounded by clavicle superiorly, deltoid laterally, and pectoralis major medially. Serratus anterior is not part of its boundaries."
+  },
+  { 
+    question: "The chief nerve supply of the trapezius is:", 
+    options: ["Spinal accessory nerve", "Dorsal scapular nerve", "Long thoracic nerve", "Axillary nerve"], 
+    correct: "Spinal accessory nerve",
+    explanation: "The trapezius is primarily supplied by the spinal accessory nerve (CN XI), with proprioceptive fibers from C3-C4."
+  },
+  { 
+    question: "The sensory supply to the skin over the shoulder tip is by:", 
+    options: ["Supraclavicular nerves (C3, C4)", "Axillary nerve", "Intercostobrachial nerve", "Suprascapular nerve"], 
+    correct: "Supraclavicular nerves (C3, C4)",
+    explanation: "The skin over the shoulder tip (acromion region) is supplied by supraclavicular nerves from C3-C4 cervical plexus."
+  },
+  { 
+    question: "The nerve supply to supraspinatus and infraspinatus is from:", 
+    options: ["Suprascapular nerve", "Axillary nerve", "Dorsal scapular nerve", "Subscapular nerve"], 
+    correct: "Suprascapular nerve",
+    explanation: "Both supraspinatus and infraspinatus are supplied by the suprascapular nerve (C5-C6)."
+  },
+  { 
+    question: "The deltoid muscle performs all actions except:", 
+    options: ["Flexion", "Abduction", "Extension", "Adduction"], 
+    correct: "Adduction",
+    explanation: "The deltoid performs flexion (anterior fibers), abduction (middle fibers), and extension (posterior fibers), but not adduction."
+  },
+  { 
+    question: "The chief movement lost in axillary nerve injury is:", 
+    options: ["Abduction", "Flexion", "Medial rotation", "Extension"], 
+    correct: "Abduction",
+    explanation: "Axillary nerve injury primarily affects abduction due to deltoid paralysis, though it also affects teres minor function."
+  },
+  { 
+    question: "The floor of the intertubercular sulcus of the humerus gives insertion to:", 
+    options: ["Latissimus dorsi", "Pectoralis major", "Teres major", "Subscapularis"], 
+    correct: "Latissimus dorsi",
+    explanation: "The floor of the intertubercular sulcus provides insertion for the latissimus dorsi tendon."
+  },
+  { 
+    question: "The nerve accompanying the posterior circumflex humeral artery is:", 
+    options: ["Axillary nerve", "Radial nerve", "Musculocutaneous nerve", "Ulnar nerve"], 
+    correct: "Axillary nerve",
+    explanation: "The axillary nerve accompanies the posterior circumflex humeral artery through the quadrangular space."
+  },
+  { 
+    question: "The root value of the suprascapular nerve is:", 
+    options: ["C5, C6", "C4, C5", "C5, C6, C7", "C3, C4"], 
+    correct: "C5, C6",
+    explanation: "The suprascapular nerve arises from the upper trunk of brachial plexus with root value C5-C6."
+  },
+  { 
+    question: "The suprascapular artery is a branch of:", 
+    options: ["Thyrocervical trunk", "Subscapular artery", "Dorsal scapular artery", "Axillary artery"], 
+    correct: "Thyrocervical trunk",
+    explanation: "The suprascapular artery is a branch of the thyrocervical trunk, which arises from the first part of the subclavian artery."
+  },
+  { 
+    question: "The subclavius muscle acts to:", 
+    options: ["Steady the clavicle during shoulder movement", "Depress the scapula", "Elevate the scapula", "Abduct the shoulder"], 
+    correct: "Steady the clavicle during shoulder movement",
+    explanation: "Subclavius steadies the clavicle during shoulder movements and protects the underlying subclavian vessels."
+  },
+  { 
+    question: "The acromioclavicular joint capsule is strengthened superiorly by:", 
+    options: ["Coracoclavicular ligament", "Acromioclavicular ligament", "Coracoacromial ligament", "Glenohumeral ligament"], 
+    correct: "Acromioclavicular ligament",
+    explanation: "The AC joint capsule is strengthened superiorly by the acromioclavicular ligament."
+  },
+  { 
+    question: "The upper surface of the lateral third of the clavicle gives attachment to:", 
+    options: ["Trapezius", "Deltoid", "Sternocleidomastoid", "Pectoralis major"], 
+    correct: "Trapezius",
+    explanation: "The trapezius muscle inserts on the superior surface of the lateral third of the clavicle."
+  },
+  { 
+    question: "The lower surface of the lateral third of clavicle gives attachment to:", 
+    options: ["Deltoid", "Conoid and trapezoid ligaments", "Trapezius", "Subclavius"], 
+    correct: "Conoid and trapezoid ligaments",
+    explanation: "The conoid and trapezoid ligaments (parts of coracoclavicular ligament) attach to the inferior surface of the lateral clavicle."
+  },
+  { 
+    question: "The sternal end of the clavicle articulates with:", 
+    options: ["Manubrium sterni and first costal cartilage", "Acromion process", "Coracoid process", "Glenoid cavity"], 
+    correct: "Manubrium sterni and first costal cartilage",
+    explanation: "The sternal end articulates with the manubrium sterni and first costal cartilage at the sternoclavicular joint."
+  },
+  { 
+    question: "The clavicle transmits weight of the upper limb to:", 
+    options: ["Sternum", "First rib", "Scapula", "Manubrium"], 
+    correct: "Sternum",
+    explanation: "The clavicle transmits weight from the upper limb to the axial skeleton via the sternoclavicular joint."
+  },
+  { 
+    question: "The most mobile joint in the body is:", 
+    options: ["Shoulder joint", "Hip joint", "Elbow joint", "Knee joint"], 
+    correct: "Shoulder joint",
+    explanation: "The glenohumeral (shoulder) joint is the most mobile joint in the body, allowing movement in all planes."
+  },
+  { 
+    question: "The most common site of fracture of the clavicle is:", 
+    options: ["Junction of medial two-thirds and lateral one-third", "Sternal end", "Acromial end", "Middle of shaft"], 
+    correct: "Junction of medial two-thirds and lateral one-third",
+    explanation: "The junction of medial 2/3 and lateral 1/3 is the weakest point and most common fracture site of the clavicle."
+  },
+  { 
+    question: "The joint between the coracoid process and acromion is:", 
+    options: ["Fibrous joint", "Cartilaginous joint", "Absent (connected by ligament only)", "Plane synovial joint"], 
+    correct: "Absent (connected by ligament only)",
+    explanation: "There is no direct joint between coracoid and acromion processes; they are connected by the coracoacromial ligament."
+  },
+  { 
+    question: "The chief abductor of the scapula (protraction) is:", 
+    options: ["Serratus anterior", "Rhomboids", "Levator scapulae", "Trapezius"], 
+    correct: "Serratus anterior",
+    explanation: "Serratus anterior is the primary muscle for scapular protraction (abduction)."
+  },
+  { 
+    question: "Retraction of the scapula is mainly by:", 
+    options: ["Rhomboids", "Trapezius (middle fibers)", "Latissimus dorsi", "All of the above"], 
+    correct: "All of the above",
+    explanation: "Scapular retraction is performed by rhomboids, middle fibers of trapezius, and latissimus dorsi."
+  },
+  { 
+    question: "The chief elevator of scapula is:", 
+    options: ["Levator scapulae", "Upper fibers of trapezius", "Rhomboids", "All of the above"], 
+    correct: "All of the above",
+    explanation: "Scapular elevation is performed by levator scapulae, upper trapezius, and rhomboids."
+  },
+  { 
+    question: "The chief depressors of scapula are:", 
+    options: ["Pectoralis minor and lower fibers of trapezius", "Serratus anterior", "Latissimus dorsi", "Both A and C"], 
+    correct: "Both A and C",
+    explanation: "Scapular depression is mainly by pectoralis minor and lower trapezius, with some contribution from latissimus dorsi."
+  },
+  { 
+    question: "Downward rotation of scapula is produced by:", 
+    options: ["Levator scapulae and rhomboids", "Serratus anterior", "Upper trapezius", "Deltoid"], 
+    correct: "Levator scapulae and rhomboids",
+    explanation: "Downward rotation of the scapula is produced by levator scapulae and rhomboid muscles."
+  },
+  { 
+    question: "Upward rotation of scapula is due to:", 
+    options: ["Upper and lower fibers of trapezius and serratus anterior", "Levator scapulae and rhomboids", "Pectoralis minor", "Deltoid alone"], 
+    correct: "Upper and lower fibers of trapezius and serratus anterior",
+    explanation: "Upward rotation is produced by coordinated action of upper/lower trapezius and serratus anterior."
+  },
+  { 
+    question: "The scapulohumeral rhythm refers to:", 
+    options: ["Coordination between scapular and humeral movements", "Rotation of clavicle", "Movement between radius and ulna", "None of the above"], 
+    correct: "Coordination between scapular and humeral movements",
+    explanation: "Scapulohumeral rhythm describes the coordinated 2:1 ratio of glenohumeral to scapulothoracic movement during arm abduction."
+  },
+  { 
+    question: "During abduction of the arm to 180°, scapular rotation contributes about:", 
+    options: ["60°", "90°", "120°", "30°"], 
+    correct: "60°",
+    explanation: "In the 2:1 scapulohumeral rhythm, for 180° abduction, the humerus contributes 120° and scapula rotates 60°."
+  },
+  { 
+    question: "The glenohumeral joint capsule attaches to:", 
+    options: ["Anatomical neck of humerus", "Surgical neck of humerus", "Shaft of humerus", "Greater tubercle only"], 
+    correct: "Anatomical neck of humerus",
+    explanation: "The joint capsule attaches to the anatomical neck of the humerus medially and the margin of the glenoid cavity laterally."
+  },
+  { 
+    question: "The synovial membrane of the shoulder joint extends into:", 
+    options: ["Intertubercular sulcus", "Coracoid process", "Subacromial space", "Clavipectoral fascia"], 
+    correct: "Intertubercular sulcus",
+    explanation: "The synovial membrane extends as a sheath around the long head of biceps tendon into the intertubercular sulcus."
+  },
+  { 
+    question: "The transverse humeral ligament converts the intertubercular groove into:", 
+    options: ["A canal for the long head of biceps tendon", "A canal for the brachial artery", "A canal for the axillary nerve", "A canal for the cephalic vein"], 
+    correct: "A canal for the long head of biceps tendon",
+    explanation: "The transverse humeral ligament bridges the intertubercular groove, forming a canal for the long head of biceps tendon."
+  },
+  { 
+    question: "Dislocation of the acromioclavicular joint is known as:", 
+    options: ["Shoulder separation", "Shoulder dislocation", "Clavicular fracture", "Sprain"], 
+    correct: "Shoulder separation",
+    explanation: "AC joint dislocation is commonly called 'shoulder separation', while glenohumeral joint dislocation is 'shoulder dislocation'."
+  },
+  { 
+    question: "The artery lying directly anterior to the subscapularis is:", 
+    options: ["Axillary artery", "Posterior circumflex humeral artery", "Profunda brachii artery", "Thoracodorsal artery"], 
+    correct: "Axillary artery",
+    explanation: "The axillary artery lies anterior to the subscapularis muscle in the axilla."
+  },
+  { 
+    question: "The pectoralis major is supplied by:", 
+    options: ["C5–C7 (lateral pectoral) and C8–T1 (medial pectoral)", "C5–C6 only", "C8–T1 only", "C3–C4"], 
+    correct: "C5–C7 (lateral pectoral) and C8–T1 (medial pectoral)",
+    explanation: "Pectoralis major has dual innervation: lateral pectoral nerve (C5-C7) and medial pectoral nerve (C8-T1)."
+  },
+  { 
+    question: "The axillary sheath encloses:", 
+    options: ["Axillary artery, axillary vein, and cords of brachial plexus", "Only axillary artery", "Only vein", "Lymph nodes"], 
+    correct: "Axillary artery, axillary vein, and cords of brachial plexus",
+    explanation: "The axillary sheath encloses the axillary artery, axillary vein, and cords of the brachial plexus."
+  },
+  { 
+    question: "The axillary lymph nodes drain all except:", 
+    options: ["Breast (lateral part)", "Upper limb", "Posterior neck", "Abdominal wall above umbilicus"], 
+    correct: "Posterior neck",
+    explanation: "Axillary nodes drain the upper limb, breast, and anterior abdominal wall above umbilicus, but not the posterior neck."
+  },
+  { 
+    question: "The apical (infraclavicular) group of axillary nodes receives lymph from:", 
+    options: ["All other groups", "Pectoral group", "Subscapular group", "Humeral group"], 
+    correct: "All other groups",
+    explanation: "The apical group receives lymph from all other axillary node groups and drains into the subclavian trunk."
+  },
+  { 
+    question: "The clavipectoral (deltopectoral) lymph node drains into:", 
+    options: ["Apical group of axillary nodes", "Central group", "Subscapular group", "Pectoral group"], 
+    correct: "Apical group of axillary nodes",
+    explanation: "The clavipectoral nodes drain into the apical group of axillary lymph nodes."
+  },
+  { 
+    question: "The cephalic vein drains into:", 
+    options: ["Axillary vein", "Basilic vein", "Brachial vein", "Subclavian vein directly"], 
+    correct: "Axillary vein",
+    explanation: "The cephalic vein drains into the axillary vein after piercing the clavipectoral fascia."
+  },
+  { 
+    question: "The thoracodorsal nerve arises from:", 
+    options: ["Posterior cord of brachial plexus", "Lateral cord", "Medial cord", "Dorsal scapular nerve"], 
+    correct: "Posterior cord of brachial plexus",
+    explanation: "The thoracodorsal nerve arises from the posterior cord of brachial plexus (C6-C8) and supplies latissimus dorsi."
+  },
+  { 
+    question: "The upper and lower subscapular nerves arise from:", 
+    options: ["Posterior cord", "Lateral cord", "Medial cord", "Suprascapular trunk"], 
+    correct: "Posterior cord",
+    explanation: "Both upper and lower subscapular nerves arise from the posterior cord of the brachial plexus."
+  },
+  { 
+    question: "The axillary nerve root value is:", 
+    options: ["C5, C6", "C6, C7", "C7, C8", "C8, T1"], 
+    correct: "C5, C6",
+    explanation: "The axillary nerve has root value C5-C6 and arises from the posterior cord of brachial plexus."
+  },
+  { 
+    question: "The musculocutaneous nerve root value is:", 
+    options: ["C5, C6, C7", "C6, C7, C8", "C7, C8, T1", "C5, C8"], 
+    correct: "C5, C6, C7",
+    explanation: "The musculocutaneous nerve has root value C5-C7 and arises from the lateral cord of brachial plexus."
+  },
+  { 
+    question: "The nerve to subclavius may give a communicating branch to:", 
+    options: ["Phrenic nerve", "Long thoracic nerve", "Axillary nerve", "Dorsal scapular nerve"], 
+    correct: "Phrenic nerve",
+    explanation: "The nerve to subclavius (C5-C6) may give an accessory phrenic nerve that joins the phrenic nerve."
+  },
+  { 
+    question: "The axillary nerve divides into anterior and posterior branches near:", 
+    options: ["Quadrangular space", "Surgical neck of humerus", "Glenoid cavity", "Subscapularis"], 
+    correct: "Surgical neck of humerus",
+    explanation: "The axillary nerve divides into anterior and posterior branches near the surgical neck of the humerus."
+  },
+  { 
+    question: "The cutaneous branch of axillary nerve supplies:", 
+    options: ["Skin over lower part of deltoid (regimental badge area)", "Skin of forearm", "Skin over scapula", "Skin of upper back"], 
+    correct: "Skin over lower part of deltoid (regimental badge area)",
+    explanation: "The superior lateral cutaneous nerve of arm (from axillary nerve) supplies skin over the lower deltoid (regimental badge area)."
+  },
+  { 
+    question: "Fracture dislocation of shoulder endangers which artery most?", 
+    options: ["Anterior circumflex humeral artery", "Posterior circumflex humeral artery", "Thoracoacromial artery", "Subscapular artery"], 
+    correct: "Posterior circumflex humeral artery",
+    explanation: "The posterior circumflex humeral artery is most endangered in shoulder dislocations as it wraps around the surgical neck with the axillary nerve."
+  },
+  { 
+    question: "The subscapular artery is a branch of which part of the axillary artery?", 
+    options: ["Third part", "First part", "Second part", "None"], 
+    correct: "Third part",
+    explanation: "The subscapular artery is the largest branch of the third part of the axillary artery."
+  },
+  { 
+    question: "The lateral thoracic artery is a branch of:", 
+    options: ["Second part of axillary artery", "First part", "Third part", "Subclavian artery"], 
+    correct: "Second part of axillary artery",
+    explanation: "The lateral thoracic artery arises from the second part of the axillary artery."
+  },
+  { 
+    question: "The superior thoracic artery is a branch of:", 
+    options: ["First part of axillary artery", "Second part", "Third part", "Subscapular artery"], 
+    correct: "First part of axillary artery",
+    explanation: "The superior thoracic artery is a branch of the first part of the axillary artery."
+  },
+  { 
+    question: "The acromial branch supplies mainly the:", 
+    options: ["Deltoid and acromion", "Subclavius", "Coracobrachialis", "Teres major"], 
+    correct: "Deltoid and acromion",
+    explanation: "The acromial branch of thoracoacromial artery supplies the deltoid muscle and acromion process."
+  },
+  { 
+    question: "The 'painful arc syndrome' is due to inflammation of:", 
+    options: ["Supraspinatus tendon and subacromial bursa", "Deltoid muscle", "Pectoralis minor", "Biceps tendon"], 
+    correct: "Supraspinatus tendon and subacromial bursa",
+    explanation: "Painful arc syndrome (60-120° abduction pain) is typically due to supraspinatus tendinitis or subacromial bursitis."
+  },
+  { 
+    question: "The acromioclavicular joint is a:", 
+    options: ["Fibrous joint", "Primary cartilaginous joint", "Secondary cartilaginous joint", "Synovial plane joint"], 
+    correct: "Synovial plane joint",
+    explanation: "The AC joint is a synovial plane joint that allows gliding movements between acromion and clavicle."
+  },
+  { 
+    question: "Which of the following muscles is responsible for initiating abduction of the arm?", 
+    options: ["Deltoid", "Supraspinatus", "Infraspinatus", "Teres minor"], 
+    correct: "Supraspinatus",
+    explanation: "Supraspinatus initiates the first 15° of abduction before the deltoid takes over."
+  },
+  { 
+    question: "The chief extensor of the shoulder joint is:", 
+    options: ["Deltoid (posterior fibers)", "Latissimus dorsi", "Teres major", "Long head of triceps"], 
+    correct: "Deltoid (posterior fibers)",
+    explanation: "The posterior fibers of deltoid are the primary extensors of the shoulder joint."
+  },
+  { 
+    question: "Which nerve supplies the deltoid muscle?", 
+    options: ["Axillary nerve", "Suprascapular nerve", "Thoracodorsal nerve", "Subscapular nerve"], 
+    correct: "Axillary nerve",
+    explanation: "The deltoid muscle is supplied by the axillary nerve (C5-C6)."
+  },
+  { 
+    question: "The lateral border of the pectoralis major forms the:", 
+    options: ["Anterior wall of axilla", "Posterior wall of axilla", "Lateral wall of axilla", "Medial wall of axilla"], 
+    correct: "Lateral wall of axilla",
+    explanation: "The lateral border of pectoralis major forms the anterior part of the lateral wall of the axilla."
+  },
+  { 
+    question: "The main action of pectoralis minor is:", 
+    options: ["Elevation of scapula", "Depression of scapula", "Protraction of scapula", "Retraction of scapula"], 
+    correct: "Protraction of scapula",
+    explanation: "Pectoralis minor primarily protracts the scapula (draws it forward around the chest wall)."
+  },
+  { 
+    question: "The clavipectoral fascia is pierced by all except:", 
+    options: ["Cephalic vein", "Thoracoacromial artery", "Lateral pectoral nerve", "Long thoracic nerve"], 
+    correct: "Long thoracic nerve",
+    explanation: "The long thoracic nerve runs superficial to serratus anterior and does not pierce the clavipectoral fascia."
+  },
+  { 
+    question: "The scapulohumeral rhythm involves:", 
+    options: ["1:1 movement between scapula and humerus", "2:1 ratio of humeral to scapular movement", "3:1 ratio of humeral to scapular movement", "1:2 ratio of scapular to humeral movement"], 
+    correct: "2:1 ratio of humeral to scapular movement",
+    explanation: "Scapulohumeral rhythm follows a 2:1 ratio - for every 3° of shoulder abduction, 2° occurs at glenohumeral joint and 1° at scapulothoracic joint."
+  },
+  { 
+    question: "The deltoid tuberosity is located on:", 
+    options: ["Clavicle", "Scapula", "Humerus", "Radius"], 
+    correct: "Humerus",
+    explanation: "The deltoid tuberosity is located on the lateral surface of the shaft of the humerus."
+  },
+  { 
+    question: "The subacromial bursa lies between:", 
+    options: ["Acromion and deltoid", "Supraspinatus and coracoid process", "Supraspinatus tendon and coracoacromial arch", "Deltoid and pectoralis major"], 
+    correct: "Supraspinatus tendon and coracoacromial arch",
+    explanation: "The subacromial bursa lies between the supraspinatus tendon and the coracoacromial arch (acromion and coracoacromial ligament)."
+  },
+  { 
+    question: "The 'painful arc' in shoulder movement usually indicates:", 
+    options: ["Rotator cuff tear", "Biceps tendon rupture", "Deltoid paralysis", "Acromioclavicular dislocation"], 
+    correct: "Rotator cuff tear",
+    explanation: "Painful arc syndrome (pain during 60-120° abduction) typically indicates rotator cuff pathology, especially supraspinatus involvement."
+  },
+  { 
+    question: "Winged scapula results from paralysis of:", 
+    options: ["Long thoracic nerve", "Dorsal scapular nerve", "Spinal accessory nerve", "Thoracodorsal nerve"], 
+    correct: "Long thoracic nerve",
+    explanation: "Winged scapula results from serratus anterior paralysis due to long thoracic nerve injury."
+  },
+  { 
+    question: "The long thoracic nerve arises from:", 
+    options: ["C4–C6", "C5–C7", "C6–C8", "C7–T1"], 
+    correct: "C5–C7",
+    explanation: "The long thoracic nerve arises from the ventral rami of C5, C6, and C7 nerve roots."
+  },
+  { 
+    question: "Which muscle lies between the pectoralis minor and serratus anterior?", 
+    options: ["Subclavius", "Pectoralis major", "Clavipectoral fascia", "None"], 
+    correct: "Clavipectoral fascia",
+    explanation: "The clavipectoral fascia lies between pectoralis minor and serratus anterior, separating these two muscles."
+  },
+  { 
+    question: "The coracoacromial ligament forms:", 
+    options: ["Roof of shoulder joint", "Floor of shoulder joint", "Capsule of shoulder joint", "Part of axillary floor"], 
+    correct: "Roof of shoulder joint",
+    explanation: "The coracoacromial ligament forms part of the coracoacromial arch, which serves as the roof of the shoulder joint."
+  },
+  { 
+    question: "The suprascapular nerve passes:", 
+    options: ["Above the superior transverse scapular ligament", "Below the superior transverse scapular ligament", "Through supraspinous fossa", "Through infraspinous fossa"], 
+    correct: "Below the superior transverse scapular ligament",
+    explanation: "The suprascapular nerve passes below the superior transverse scapular ligament through the scapular notch."
+  },
+  { 
+    question: "The nerve supplying teres major:", 
+    options: ["Axillary nerve", "Upper subscapular nerve", "Lower subscapular nerve", "Thoracodorsal nerve"], 
+    correct: "Lower subscapular nerve",
+    explanation: "Teres major is supplied by the lower subscapular nerve (C5-C6)."
+  },
+  { 
+    question: "The blood supply of supraspinatus comes from:", 
+    options: ["Dorsal scapular artery", "Circumflex scapular artery", "Suprascapular artery", "Thoracoacromial artery"], 
+    correct: "Suprascapular artery",
+    explanation: "Supraspinatus receives its blood supply mainly from the suprascapular artery."
+  },
+  { 
+    question: "The coracoid process gives attachment to all except:", 
+    options: ["Pectoralis minor", "Coracobrachialis", "Short head of biceps brachii", "Long head of triceps"], 
+    correct: "Long head of triceps",
+    explanation: "The long head of triceps arises from the infraglenoid tubercle, not the coracoid process."
+  },
+  { 
+    question: "The acromion process articulates with:", 
+    options: ["Coracoid process", "Clavicle", "Humerus", "Sternum"], 
+    correct: "Clavicle",
+    explanation: "The acromion process articulates with the clavicle at the acromioclavicular joint."
+  },
+  { 
+    question: "Ossification of the clavicle begins in:", 
+    options: ["Membrane", "Cartilage", "Both membrane and cartilage", "None of the above"], 
+    correct: "Both membrane and cartilage",
+    explanation: "The clavicle ossifies both in membrane (for the shaft) and in cartilage (for the ends)."
+  },
+  { 
+    question: "The only muscle inserting into the lesser tubercle of humerus:", 
+    options: ["Teres major", "Subscapularis", "Pectoralis major", "Latissimus dorsi"], 
+    correct: "Subscapularis",
+    explanation: "Subscapularis is the only muscle that inserts into the lesser tubercle of the humerus."
+  },
+  { 
+    question: "The supraspinatus and infraspinatus are innervated by:", 
+    options: ["Axillary nerve", "Suprascapular nerve", "Dorsal scapular nerve", "Thoracodorsal nerve"], 
+    correct: "Suprascapular nerve",
+    explanation: "Both supraspinatus and infraspinatus are supplied by the suprascapular nerve (C5-C6)."
+  },
+  { 
+    question: "The deltopectoral groove transmits:", 
+    options: ["Cephalic vein", "Basilic vein", "Axillary vein", "Median vein"], 
+    correct: "Cephalic vein",
+    explanation: "The deltopectoral groove contains the cephalic vein and deltopectoral lymph nodes."
+  },
+  { 
+    question: "The axillary nerve winds around the:", 
+    options: ["Surgical neck of humerus", "Anatomical neck of humerus", "Radial groove", "Medial epicondyle"], 
+    correct: "Surgical neck of humerus",
+    explanation: "The axillary nerve winds around the surgical neck of the humerus, making it vulnerable in fractures at this site."
+  },
+  { 
+    question: "Damage to axillary nerve leads to:", 
+    options: ["Loss of shoulder adduction", "Loss of shoulder abduction", "Loss of shoulder flexion", "Loss of shoulder extension"], 
+    correct: "Loss of shoulder abduction",
+    explanation: "Axillary nerve injury primarily affects abduction due to deltoid paralysis."
+  },
+  { 
+    question: "The superior transverse scapular ligament converts the scapular notch into a:", 
+    options: ["Foramen", "Groove", "Canal", "Fossa"], 
+    correct: "Foramen",
+    explanation: "The superior transverse scapular ligament converts the scapular notch into a foramen for the suprascapular nerve."
+  },
+  { 
+    question: "The bicipital groove transmits:", 
+    options: ["Tendon of short head of biceps", "Tendon of long head of biceps", "Brachial artery", "Musculocutaneous nerve"], 
+    correct: "Tendon of long head of biceps",
+    explanation: "The bicipital (intertubercular) groove transmits the tendon of the long head of biceps brachii."
+  },
+  { 
+    question: "The muscle forming posterior axillary fold:", 
+    options: ["Latissimus dorsi and teres major", "Deltoid and teres minor", "Pectoralis major and minor", "Subscapularis and deltoid"], 
+    correct: "Latissimus dorsi and teres major",
+    explanation: "The posterior axillary fold is formed by latissimus dorsi and teres major muscles."
+  },
+  { 
+    question: "The muscle forming anterior axillary fold:", 
+    options: ["Pectoralis major", "Pectoralis minor", "Deltoid", "Subclavius"], 
+    correct: "Pectoralis major",
+    explanation: "The anterior axillary fold is formed by the lower border of the pectoralis major muscle."
+  },
+  { 
+    question: "The shoulder joint is least stable in which position?", 
+    options: ["Flexion", "Extension", "Abduction with lateral rotation", "Adduction"], 
+    correct: "Abduction with lateral rotation",
+    explanation: "The shoulder joint is least stable in abduction and lateral rotation, which is the position for anterior dislocations."
+  },
+  { 
+    question: "The glenoid labrum serves to:", 
+    options: ["Deepen the glenoid cavity", "Strengthen the capsule", "Attach the biceps tendon", "Reduce friction"], 
+    correct: "Deepen the glenoid cavity",
+    explanation: "The glenoid labrum deepens the shallow glenoid cavity, improving joint stability."
+  },
+  { 
+    question: "Which of the following muscles medially rotates the arm?", 
+    options: ["Infraspinatus", "Subscapularis", "Teres minor", "Supraspinatus"], 
+    correct: "Subscapularis",
+    explanation: "Subscapularis is the primary medial rotator of the arm among the rotator cuff muscles."
+  },
+  { 
+    question: "The supraspinous fossa lies:", 
+    options: ["Below the spine of scapula", "Above the spine of scapula", "Between coracoid and acromion", "Medial to the spine"], 
+    correct: "Above the spine of scapula",
+    explanation: "The supraspinous fossa lies above the spine of scapula and contains the supraspinatus muscle."
+  },
+  { 
+    question: "The rotator cuff muscle that laterally rotates the arm:", 
+    options: ["Subscapularis", "Infraspinatus", "Supraspinatus", "Teres major"], 
+    correct: "Infraspinatus",
+    explanation: "Infraspinatus is the primary lateral rotator among the rotator cuff muscles."
+  },
+  { 
+    question: "The most commonly dislocated joint in the body is:", 
+    options: ["Hip joint", "Knee joint", "Shoulder joint", "Elbow joint"], 
+    correct: "Shoulder joint",
+    explanation: "The shoulder joint is the most commonly dislocated major joint due to its mobility and relative instability."
+  },
+  { 
+    question: "Shoulder dislocation commonly occurs in:", 
+    options: ["Superior direction", "Inferior direction", "Anterior direction", "Posterior direction"], 
+    correct: "Anterior direction",
+    explanation: "Anterior dislocations account for 95-97% of all shoulder dislocations."
+  },
+  { 
+    question: "Fracture of the surgical neck of humerus endangers:", 
+    options: ["Musculocutaneous nerve", "Axillary nerve", "Radial nerve", "Median nerve"], 
+    correct: "Axillary nerve",
+    explanation: "The axillary nerve is most vulnerable in surgical neck fractures as it wraps around this area."
+  },
+  { 
+    question: "The pectoralis major has how many heads?", 
+    options: ["One", "Two", "Three", "Four"], 
+    correct: "Two",
+    explanation: "Pectoralis major has two heads: clavicular head (from clavicle) and sternocostal head (from sternum and costal cartilages)."
+  },
+  { 
+    question: "The costocoracoid membrane is part of:", 
+    options: ["Clavipectoral fascia", "Deep pectoral fascia", "Axillary fascia", "Cervical fascia"], 
+    correct: "Clavipectoral fascia",
+    explanation: "The costocoracoid membrane is the part of clavipectoral fascia between pectoralis minor and subclavius."
+  },
+  { 
+    question: "The subclavius muscle protects:", 
+    options: ["Brachial plexus", "Axillary artery", "Subclavian vessels", "Cephalic vein"], 
+    correct: "Subclavian vessels",
+    explanation: "Subclavius protects the underlying subclavian vessels and brachial plexus."
+  },
+  { 
+    question: "The scapula ossifies from:", 
+    options: ["1 primary and 1 secondary center", "1 primary and 5 secondary centers", "2 primary and 3 secondary centers", "1 primary and 3 secondary centers"], 
+    correct: "1 primary and 5 secondary centers",
+    explanation: "The scapula ossifies from one primary center for the body and 5 secondary centers for other parts."
+  },
+  { 
+    question: "The coracoclavicular ligament is composed of:", 
+    options: ["Trapezoid and conoid ligaments", "Trapezoid and coracoacromial ligaments", "Conoid and acromioclavicular ligaments", "Costoclavicular and trapezoid ligaments"], 
+    correct: "Trapezoid and conoid ligaments",
+    explanation: "The coracoclavicular ligament consists of two parts: trapezoid (lateral) and conoid (medial) ligaments."
+  },
+  { 
+    question: "The main artery supplying the deltoid:", 
+    options: ["Posterior circumflex humeral artery", "Anterior circumflex humeral artery", "Thoracoacromial artery", "Suprascapular artery"], 
+    correct: "Posterior circumflex humeral artery",
+    explanation: "The posterior circumflex humeral artery is the main blood supply to the deltoid muscle."
+  },
+  { 
+    question: "Which muscle acts as a 'shoulder stabilizer' when carrying a heavy load?", 
+    options: ["Trapezius", "Rhomboid major", "Levator scapulae", "Supraspinatus"], 
+    correct: "Trapezius",
+    explanation: "The trapezius acts as a shoulder stabilizer when carrying heavy loads, preventing downward displacement of the shoulder girdle."
+  },
+  { 
+    question: "Which muscle is a strong adductor and medial rotator of the humerus?", 
+    options: ["Pectoralis major", "Deltoid", "Infraspinatus", "Supraspinatus"], 
+    correct: "Pectoralis major",
+    explanation: "Pectoralis major is a powerful adductor and medial rotator of the humerus."
+  },
+  { 
+    question: "The scapular anastomosis involves all except:", 
+    options: ["Dorsal scapular artery", "Suprascapular artery", "Thoracodorsal artery", "Posterior circumflex humeral artery"], 
+    correct: "Posterior circumflex humeral artery",
+    explanation: "The posterior circumflex humeral artery is not part of the scapular anastomosis; it supplies the deltoid and shoulder joint."
+  },
+  { 
+    question: "Which joint allows elevation and depression of the scapula?", 
+    options: ["Acromioclavicular joint", "Sternoclavicular joint", "Glenohumeral joint", "Coracoclavicular joint"], 
+    correct: "Sternoclavicular joint",
+    explanation: "The sternoclavicular joint allows elevation and depression of the scapula through clavicular movement."
+  },
+  { 
+    question: "The 'deltoid paralysis patch' of anesthesia appears over:", 
+    options: ["Medial arm", "Lateral shoulder", "Forearm", "Scapula"], 
+    correct: "Lateral shoulder",
+    explanation: "Axillary nerve injury causes anesthesia over the lateral shoulder (regimental badge area) due to cutaneous branch involvement."
+  },
+  { 
+    question: "The muscle acting in both flexion and extension of the shoulder:", 
+    options: ["Deltoid", "Pectoralis major", "Teres major", "Latissimus dorsi"], 
+    correct: "Deltoid",
+    explanation: "The deltoid can both flex (anterior fibers) and extend (posterior fibers) the shoulder joint."
+  },
+  { 
+    question: "Which structure passes through the quadrangular space?", 
+    options: ["Axillary nerve and posterior circumflex humeral artery", "Radial nerve and deep brachial artery", "Suprascapular nerve and artery", "Circumflex scapular artery"], 
+    correct: "Axillary nerve and posterior circumflex humeral artery",
+    explanation: "The quadrangular space transmits the axillary nerve and posterior circumflex humeral artery from the axilla to the posterior aspect of the shoulder."
+  },
+  { 
+    question: "Which muscle forms the upper boundary of the quadrangular space?", 
+    options: ["Teres major", "Teres minor", "Long head of triceps", "Subscapularis"], 
+    correct: "Teres minor",
+    explanation: "The quadrangular space is bounded by: teres minor (superior), teres major (inferior), long head of triceps (medial), and surgical neck of humerus (lateral)."
+  },
+  { 
+    question: "The lower boundary of the quadrangular space is formed by:", 
+    options: ["Teres major", "Teres minor", "Latissimus dorsi", "Deltoid"], 
+    correct: "Teres major",
+    explanation: "Teres major forms the inferior boundary of the quadrangular space."
+  },
+  { 
+    question: "The triangular space transmits:", 
+    options: ["Circumflex scapular artery", "Posterior circumflex humeral artery", "Axillary nerve", "Radial nerve"], 
+    correct: "Circumflex scapular artery",
+    explanation: "The triangular space transmits the circumflex scapular artery, which is a branch of the subscapular artery that participates in the scapular anastomosis."
+  },
+  { 
+    question: "The triangular interval transmits:", 
+    options: ["Radial nerve and deep brachial artery", "Axillary nerve and posterior circumflex humeral artery", "Circumflex scapular artery", "Suprascapular nerve"], 
+    correct: "Radial nerve and deep brachial artery",
+    explanation: "The triangular interval transmits the radial nerve and profunda brachii (deep brachial) artery from the axilla to the posterior compartment of the arm."
+  },
+  { 
+    question: "The axillary nerve may be injured in:", 
+    options: ["Fracture of surgical neck of humerus", "Midshaft fracture of humerus", "Supracondylar fracture", "Clavicular fracture"], 
+    correct: "Fracture of surgical neck of humerus",
+    explanation: "The axillary nerve winds around the surgical neck of the humerus, making it vulnerable to injury in fractures at this location."
+  },
+  { 
+    question: "The muscle responsible for scapular protraction and upward rotation:", 
+    options: ["Serratus anterior", "Rhomboid major", "Levator scapulae", "Trapezius (middle fibers)"], 
+    correct: "Serratus anterior",
+    explanation: "Serratus anterior is the primary muscle for scapular protraction (forward movement) and upward rotation."
+  },
+  { 
+    question: "Which muscle assists in both abduction and medial rotation of the humerus?", 
+    options: ["Deltoid", "Pectoralis major", "Subscapularis", "Supraspinatus"], 
+    correct: "Deltoid",
+    explanation: "The anterior fibers of deltoid assist in both abduction and medial rotation of the humerus."
+  },
+  { 
+    question: "During shoulder abduction, the deltoid is assisted by:", 
+    options: ["Supraspinatus", "Infraspinatus", "Teres major", "Pectoralis minor"], 
+    correct: "Supraspinatus",
+    explanation: "Supraspinatus assists the deltoid during shoulder abduction, especially in initiating the movement."
+  },
+  { 
+    question: "Shoulder dislocation commonly injures which artery?", 
+    options: ["Posterior circumflex humeral artery", "Axillary artery", "Suprascapular artery", "Subscapular artery"], 
+    correct: "Posterior circumflex humeral artery",
+    explanation: "The posterior circumflex humeral artery is commonly injured in shoulder dislocations as it wraps around the surgical neck with the axillary nerve."
+  },
+  { 
+    question: "The long head of the biceps arises from:", 
+    options: ["Coracoid process", "Supraglenoid tubercle", "Infraglenoid tubercle", "Scapular spine"], 
+    correct: "Supraglenoid tubercle",
+    explanation: "The long head of biceps originates from the supraglenoid tubercle of the scapula."
+  },
+  { 
+    question: "The long head of triceps arises from:", 
+    options: ["Supraglenoid tubercle", "Infraglenoid tubercle", "Coracoid process", "Scapular spine"], 
+    correct: "Infraglenoid tubercle",
+    explanation: "The long head of triceps originates from the infraglenoid tubercle of the scapula."
+  },
+  { 
+    question: "The anatomical neck of humerus separates:", 
+    options: ["Head from greater and lesser tubercles", "Head from shaft", "Greater tubercle from shaft", "Lesser tubercle from shaft"], 
+    correct: "Head from greater and lesser tubercles",
+    explanation: "The anatomical neck separates the head of humerus from the greater and lesser tubercles."
+  },
+  { 
+    question: "The subacromial (subdeltoid) bursa prevents friction between:", 
+    options: ["Supraspinatus tendon and coracoacromial arch", "Infraspinatus tendon and scapula", "Pectoralis major and deltoid", "Trapezius and scapular spine"], 
+    correct: "Supraspinatus tendon and coracoacromial arch",
+    explanation: "The subacromial bursa reduces friction between the supraspinatus tendon and the coracoacromial arch during shoulder movements."
+  },
+  { 
+    question: "In rotator cuff tears, which tendon is most commonly affected?", 
+    options: ["Supraspinatus", "Infraspinatus", "Subscapularis", "Teres minor"], 
+    correct: "Supraspinatus",
+    explanation: "Supraspinatus tendon is most commonly affected in rotator cuff tears due to its vulnerable position in the subacromial space."
+  },
+  { 
+    question: "The axillary artery begins at the lateral border of:", 
+    options: ["1st rib", "2nd rib", "Clavicle", "3rd rib"], 
+    correct: "1st rib",
+    explanation: "The axillary artery begins at the lateral border of the first rib as the continuation of the subclavian artery."
+  },
+  { 
+    question: "The axillary artery ends at the lower border of:", 
+    options: ["Pectoralis major", "Pectoralis minor", "Teres major", "Subscapularis"], 
+    correct: "Teres major",
+    explanation: "The axillary artery ends at the lower border of teres major, where it becomes the brachial artery."
+  },
+  { 
+    question: "The first part of axillary artery gives off:", 
+    options: ["Superior thoracic artery", "Lateral thoracic artery", "Thoracoacromial artery", "Subscapular artery"], 
+    correct: "Superior thoracic artery",
+    explanation: "The first part of axillary artery gives off the superior thoracic artery."
+  },
+  { 
+    question: "The thoracoacromial artery divides into all except:", 
+    options: ["Clavicular branch", "Acromial branch", "Deltoid branch", "Subscapular branch"], 
+    correct: "Subscapular branch",
+    explanation: "The thoracoacromial artery divides into clavicular, acromial, deltoid, and pectoral branches, but not subscapular branch."
+  },
+  { 
+    question: "The subscapular artery divides into:", 
+    options: ["Circumflex scapular and thoracodorsal arteries", "Acromial and deltoid branches", "Lateral and medial thoracic arteries", "Anterior and posterior humeral circumflex arteries"], 
+    correct: "Circumflex scapular and thoracodorsal arteries",
+    explanation: "The subscapular artery, the largest branch of axillary artery, divides into circumflex scapular and thoracodorsal arteries."
+  },
+  { 
+    question: "The axillary vein lies:", 
+    options: ["Medial to axillary artery", "Lateral to axillary artery", "Anterior to axillary artery", "Posterior to axillary artery"], 
+    correct: "Medial to axillary artery",
+    explanation: "The axillary vein lies medial to the axillary artery throughout its course in the axilla."
+  },
+  { 
+    question: "The lymph nodes located along the lateral wall of the axilla drain:", 
+    options: ["Upper limb", "Breast", "Chest wall", "Scapular region"], 
+    correct: "Upper limb",
+    explanation: "The lateral (brachial) group of axillary nodes drains the upper limb."
+  },
+  { 
+    question: "The apical group of axillary lymph nodes receives lymph from:", 
+    options: ["All other axillary groups", "Lateral group only", "Pectoral group only", "Subscapular group only"], 
+    correct: "All other axillary groups",
+    explanation: "The apical group receives lymph from all other axillary node groups and drains into the subclavian lymphatic trunk."
+  },
+  { 
+    question: "The apex of the axilla is bounded by all except:", 
+    options: ["First rib", "Clavicle", "Coracoid process", "Superior border of scapula"], 
+    correct: "Coracoid process",
+    explanation: "The apex is bounded by clavicle (anterior), first rib (medial), and superior border of scapula (posterior). Coracoid process is not part of the apex."
+  },
+  { 
+    question: "The base of the axilla is formed by:", 
+    options: ["Skin and fascia", "Pectoralis major", "Latissimus dorsi", "Subscapularis"], 
+    correct: "Skin and fascia",
+    explanation: "The base of the axilla is formed by the axillary fascia and skin, creating the armpit."
+  },
+  { 
+    question: "The posterior wall of the axilla is formed by:", 
+    options: ["Subscapularis, teres major, and latissimus dorsi", "Pectoralis major and minor", "Clavicle and first rib", "Serratus anterior"], 
+    correct: "Subscapularis, teres major, and latissimus dorsi",
+    explanation: "The posterior wall is formed by subscapularis, teres major, and latissimus dorsi muscles."
+  },
+  { 
+    question: "The medial wall of the axilla is formed by:", 
+    options: ["Serratus anterior and thoracic wall", "Pectoralis major and minor", "Subscapularis and teres major", "Coracobrachialis"], 
+    correct: "Serratus anterior and thoracic wall",
+    explanation: "The medial wall is formed by serratus anterior muscle covering the upper ribs (thoracic wall)."
+  },
+  { 
+    question: "The axillary nerve supplies all except:", 
+    options: ["Deltoid", "Teres minor", "Skin over deltoid", "Supraspinatus"], 
+    correct: "Supraspinatus",
+    explanation: "The axillary nerve supplies deltoid, teres minor, and skin over deltoid, but supraspinatus is supplied by suprascapular nerve."
+  },
+  { 
+    question: "The nerve supply of pectoralis major:", 
+    options: ["Medial and lateral pectoral nerves", "Only lateral pectoral nerve", "Only medial pectoral nerve", "Long thoracic nerve"], 
+    correct: "Medial and lateral pectoral nerves",
+    explanation: "Pectoralis major receives dual innervation from both medial and lateral pectoral nerves."
+  },
+  { 
+    question: "The long thoracic nerve runs:", 
+    options: ["Superficial to serratus anterior", "Deep to serratus anterior", "Between deltoid and pectoralis major", "Along pectoralis minor"], 
+    correct: "Superficial to serratus anterior",
+    explanation: "The long thoracic nerve runs on the superficial surface of serratus anterior muscle, which it supplies."
+  },
+  { 
+    question: "Fracture of the middle third of clavicle may damage:", 
+    options: ["Subclavian vein", "Subclavian artery", "Brachial plexus", "All of the above"], 
+    correct: "All of the above",
+    explanation: "Fracture of middle third clavicle may damage subclavian vessels and brachial plexus due to their close relationship."
+  },
+  { 
+    question: "Ossification of the clavicle begins around:", 
+    options: ["5th week of intrauterine life", "6th week of intrauterine life", "8th week of intrauterine life", "10th week of intrauterine life"], 
+    correct: "6th week of intrauterine life",
+    explanation: "The clavicle begins ossifying in the 6th week of fetal development, making it the first bone to ossify."
+  },
+  { 
+    question: "The first bone to start ossifying in the body:", 
+    options: ["Clavicle", "Femur", "Mandible", "Humerus"], 
+    correct: "Clavicle",
+    explanation: "The clavicle is the first bone to begin ossification in the developing fetus."
+  },
+  { 
+    question: "The sternoclavicular joint is classified as:", 
+    options: ["Synovial saddle joint", "Synovial plane joint", "Fibrous joint", "Ball and socket joint"], 
+    correct: "Synovial saddle joint",
+    explanation: "The sternoclavicular joint is a synovial saddle joint that allows multiaxial movement."
+  },
+  { 
+    question: "The acromioclavicular joint is stabilized by:", 
+    options: ["Coracoclavicular ligament", "Glenohumeral ligament", "Costoclavicular ligament", "Transverse humeral ligament"], 
+    correct: "Coracoclavicular ligament",
+    explanation: "The coracoclavicular ligament (conoid and trapezoid parts) is the main stabilizer of the AC joint."
+  },
+  { 
+    question: "The clavicle transmits force from:", 
+    options: ["Upper limb to axial skeleton", "Axial skeleton to upper limb", "Sternum to scapula", "Scapula to vertebral column"], 
+    correct: "Upper limb to axial skeleton",
+    explanation: "The clavicle transmits forces from the upper limb to the axial skeleton (sternum)."
+  },
+  { 
+    question: "The scapular notch transmits:", 
+    options: ["Suprascapular nerve", "Suprascapular artery", "Both nerve and artery", "Axillary nerve"], 
+    correct: "Suprascapular nerve",
+    explanation: "The scapular notch transmits the suprascapular nerve below the superior transverse scapular ligament."
+  },
+  { 
+    question: "The suprascapular artery passes:", 
+    options: ["Above superior transverse scapular ligament", "Below superior transverse scapular ligament", "Through glenoid cavity", "Between teres muscles"], 
+    correct: "Above superior transverse scapular ligament",
+    explanation: "The suprascapular artery passes above the superior transverse scapular ligament, while the nerve passes below it."
+  },
+  { 
+    question: "The coracoid process acts as a site for attachment of all except:", 
+    options: ["Coracobrachialis", "Short head of biceps", "Pectoralis minor", "Long head of biceps"], 
+    correct: "Long head of biceps",
+    explanation: "The long head of biceps arises from supraglenoid tubercle, not coracoid process."
+  },
+  { 
+    question: "The main stabilizing muscle of the shoulder joint is:", 
+    options: ["Rotator cuff group", "Deltoid", "Pectoralis major", "Trapezius"], 
+    correct: "Rotator cuff group",
+    explanation: "The rotator cuff muscles (SITS) are the primary dynamic stabilizers of the shoulder joint."
+  },
+  { 
+    question: "The axillary nerve root value:", 
+    options: ["C5–C6", "C4–C5", "C6–C7", "C7–C8"], 
+    correct: "C5–C6",
+    explanation: "The axillary nerve has root value C5-C6 and arises from the posterior cord of brachial plexus."
+  },
+  { 
+    question: "The lateral pectoral nerve arises from:", 
+    options: ["Lateral cord of brachial plexus", "Medial cord of brachial plexus", "Posterior cord", "Upper trunk"], 
+    correct: "Lateral cord of brachial plexus",
+    explanation: "The lateral pectoral nerve arises from the lateral cord of the brachial plexus."
+  },
+  { 
+    question: "The medial pectoral nerve pierces which muscle?", 
+    options: ["Pectoralis minor", "Pectoralis major", "Subclavius", "Deltoid"], 
+    correct: "Pectoralis minor",
+    explanation: "The medial pectoral nerve pierces the pectoralis minor muscle to reach pectoralis major."
+  },
+  { 
+    question: "The posterior circumflex humeral artery passes through:", 
+    options: ["Quadrangular space", "Triangular space", "Triangular interval", "Deltopectoral groove"], 
+    correct: "Quadrangular space",
+    explanation: "The posterior circumflex humeral artery passes through the quadrangular space with the axillary nerve."
+  },
+  { 
+    question: "The coracobrachialis muscle is pierced by:", 
+    options: ["Musculocutaneous nerve", "Median nerve", "Ulnar nerve", "Axillary nerve"], 
+    correct: "Musculocutaneous nerve",
+    explanation: "The musculocutaneous nerve pierces the coracobrachialis muscle in the arm."
+  },
+  { 
+    question: "The action of subscapularis:", 
+    options: ["Medial rotation of arm", "Lateral rotation of arm", "Abduction of arm", "Extension of arm"], 
+    correct: "Medial rotation of arm",
+    explanation: "Subscapularis is the primary medial rotator of the arm among the rotator cuff muscles."
+  },
+  { 
+    question: "Which muscle is not a rotator cuff muscle?", 
+    options: ["Supraspinatus", "Infraspinatus", "Teres major", "Subscapularis"], 
+    correct: "Teres major",
+    explanation: "Teres major is not part of the rotator cuff. The rotator cuff consists of supraspinatus, infraspinatus, teres minor, and subscapularis."
+  },
+  { 
+    question: "The shoulder joint capsule is deficient:", 
+    options: ["Inferiorly", "Superiorly", "Anteriorly", "Posteriorly"], 
+    correct: "Inferiorly",
+    explanation: "The shoulder joint capsule is weakest inferiorly, which explains why anterior-inferior dislocations are most common."
+  },
+  { 
+    question: "Frozen shoulder (adhesive capsulitis) involves:", 
+    options: ["Fibrosis of shoulder joint capsule", "Tear of rotator cuff", "Dislocation of shoulder", "Arthritis of AC joint"], 
+    correct: "Fibrosis of shoulder joint capsule",
+    explanation: "Frozen shoulder involves fibrosis and contracture of the shoulder joint capsule, leading to stiffness and pain."
+  },
+  { 
+    question: "The clavicle acts as a:", 
+    options: ["Strut between sternum and scapula", "Lever for shoulder movement", "Shock absorber", "All of the above"], 
+    correct: "All of the above",
+    explanation: "The clavicle functions as a strut, lever, and shock absorber for the shoulder girdle."
+  },
+  { 
+    question: "The chief flexor of the shoulder joint is:", 
+    options: ["Deltoid", "Pectoralis major", "Coracobrachialis", "Latissimus dorsi"], 
+    correct: "Pectoralis major",
+    explanation: "Pectoralis major (clavicular head) is the chief flexor of the shoulder joint."
+  },
+  { 
+    question: "Which nerve supplies the supraspinatus muscle?", 
+    options: ["Axillary nerve", "Suprascapular nerve", "Subscapular nerve", "Musculocutaneous nerve"], 
+    correct: "Suprascapular nerve",
+    explanation: "Supraspinatus is supplied by the suprascapular nerve (C5-C6)."
+  },
+  { 
+    question: "The main abductor of the shoulder joint is:", 
+    options: ["Deltoid", "Supraspinatus", "Infraspinatus", "Teres minor"], 
+    correct: "Deltoid",
+    explanation: "The deltoid muscle is the main abductor of the shoulder joint beyond the initial 15°."
+  },
+  { 
+    question: "Abduction of the arm beyond 90° is mainly assisted by:", 
+    options: ["Deltoid", "Trapezius and Serratus anterior", "Latissimus dorsi", "Teres major"], 
+    correct: "Trapezius and Serratus anterior",
+    explanation: "Beyond 90° abduction, scapular rotation by trapezius and serratus anterior is required for full elevation."
+  },
+  { 
+    question: "The axillary nerve supplies all except:", 
+    options: ["Deltoid", "Teres minor", "Teres major", "Skin over lower deltoid"], 
+    correct: "Teres major",
+    explanation: "Teres major is supplied by the lower subscapular nerve, not the axillary nerve."
+  },
+  { 
+    question: "The first 15° of abduction of the arm is performed by:", 
+    options: ["Deltoid", "Supraspinatus", "Infraspinatus", "Trapezius"], 
+    correct: "Supraspinatus",
+    explanation: "Supraspinatus initiates and performs the first 15° of shoulder abduction."
+  },
+  { 
+    question: "The clavicle transmits forces from the:", 
+    options: ["Arm to the sternum", "Scapula to the vertebrae", "Arm to the humerus", "Neck to the scapula"], 
+    correct: "Arm to the sternum",
+    explanation: "The clavicle transmits forces from the upper limb to the axial skeleton via the sternoclavicular joint."
+  },
+  { 
+    question: "The costocoracoid membrane is pierced by all except:", 
+    options: ["Cephalic vein", "Thoracoacromial artery", "Lateral pectoral nerve", "Long thoracic nerve"], 
+    correct: "Long thoracic nerve",
+    explanation: "The long thoracic nerve runs superficial to serratus anterior and does not pierce the costocoracoid membrane."
+  },
+  { 
+    question: "The subacromial bursa separates:", 
+    options: ["Supraspinatus tendon and acromion", "Deltoid and pectoralis major", "Infraspinatus and teres minor", "Glenoid and humeral head"], 
+    correct: "Supraspinatus tendon and acromion",
+    explanation: "The subacromial bursa lies between the supraspinatus tendon and the acromion process/coracoacromial ligament."
+  },
+  { 
+    question: "The scapular notch transmits:", 
+    options: ["Axillary nerve", "Suprascapular nerve", "Dorsal scapular artery", "Subscapular nerve"], 
+    correct: "Suprascapular nerve",
+    explanation: "The scapular notch transmits the suprascapular nerve below the superior transverse scapular ligament."
+  },
+  { 
+    question: "The deltopectoral groove contains:", 
+    options: ["Cephalic vein", "Basilic vein", "Brachial artery", "Axillary nerve"], 
+    correct: "Cephalic vein",
+    explanation: "The deltopectoral groove contains the cephalic vein and deltopectoral lymph nodes."
+  },
+  { 
+    question: "The coracoclavicular ligament consists of:", 
+    options: ["Trapezoid and conoid parts", "Acromial and costal parts", "Clavicular and coracoid parts", "Superior and inferior parts"], 
+    correct: "Trapezoid and conoid parts",
+    explanation: "The coracoclavicular ligament consists of trapezoid (lateral) and conoid (medial) parts."
+  },
+  { 
+    question: "Which muscle assists in protraction of the scapula?", 
+    options: ["Serratus anterior", "Trapezius", "Rhomboid major", "Levator scapulae"], 
+    correct: "Serratus anterior",
+    explanation: "Serratus anterior is the primary muscle for scapular protraction (forward movement around the chest wall)."
+  },
+  { 
+    question: "The posterior wall of the axilla includes:", 
+    options: ["Subscapularis", "Serratus anterior", "Pectoralis major", "Clavicle"], 
+    correct: "Subscapularis",
+    explanation: "The posterior wall of the axilla includes subscapularis, teres major, and latissimus dorsi muscles."
+  },
+  { 
+    question: "The lateral wall of the axilla is formed by:", 
+    options: ["Biceps brachii and coracobrachialis", "Pectoralis major", "Subscapularis", "Latissimus dorsi"], 
+    correct: "Biceps brachii and coracobrachialis",
+    explanation: "The lateral wall is formed by the intertubercular sulcus of humerus, containing tendons of biceps brachii and coracobrachialis."
+  },
+  { 
+    question: "The lymph nodes draining the pectoral region are mainly:", 
+    options: ["Anterior axillary nodes", "Posterior axillary nodes", "Central axillary nodes", "Lateral axillary nodes"], 
+    correct: "Anterior axillary nodes",
+    explanation: "The anterior (pectoral) group of axillary nodes drains the pectoral region and breast."
+  },
+  { 
+    question: "The main arterial supply to the pectoralis major is from:", 
+    options: ["Thoracoacromial artery", "Lateral thoracic artery", "Subscapular artery", "Axillary artery"], 
+    correct: "Thoracoacromial artery",
+    explanation: "The pectoral branch of thoracoacromial artery is the main blood supply to pectoralis major."
+  },
+  { 
+    question: "Which muscle stabilizes the head of the humerus in the glenoid cavity?", 
+    options: ["Rotator cuff muscles", "Deltoid", "Pectoralis major", "Coracobrachialis"], 
+    correct: "Rotator cuff muscles",
+    explanation: "The rotator cuff muscles dynamically stabilize the humeral head in the glenoid cavity during shoulder movements."
+  },
+  { 
+    question: "Winged scapula results from paralysis of:", 
+    options: ["Long thoracic nerve", "Thoracodorsal nerve", "Axillary nerve", "Dorsal scapular nerve"], 
+    correct: "Long thoracic nerve",
+    explanation: "Winged scapula results from serratus anterior paralysis due to long thoracic nerve injury."
+  },
+  { 
+    question: "The chief external rotator of the shoulder is:", 
+    options: ["Infraspinatus", "Subscapularis", "Teres major", "Pectoralis major"], 
+    correct: "Infraspinatus",
+    explanation: "Infraspinatus is the primary external (lateral) rotator of the shoulder joint."
+  },
+  { 
+    question: "The suprascapular artery passes:", 
+    options: ["Above the superior transverse scapular ligament", "Below the ligament", "Through the foramen", "Deep to the clavicle"], 
+    correct: "Above the superior transverse scapular ligament",
+    explanation: "The suprascapular artery passes above the superior transverse scapular ligament, while the nerve passes below it."
+  },
+  { 
+    question: "The suprascapular nerve passes:", 
+    options: ["Below the superior transverse scapular ligament", "Above the ligament", "Alongside the artery", "Within the notch"], 
+    correct: "Below the superior transverse scapular ligament",
+    explanation: "The suprascapular nerve passes below the superior transverse scapular ligament through the scapular notch."
+  },
+  { 
+    question: "The scapula lies opposite:", 
+    options: ["Ribs 2 to 7", "Ribs 3 to 9", "Ribs 1 to 6", "Ribs 2 to 6"], 
+    correct: "Ribs 2 to 7",
+    explanation: "The scapula normally lies opposite ribs 2 to 7 on the posterior thoracic wall."
+  },
+  { 
+    question: "Ossification of the clavicle begins:", 
+    options: ["In membrane", "In cartilage", "Both in membrane and cartilage", "From periosteum"], 
+    correct: "Both in membrane and cartilage",
+    explanation: "The clavicle ossifies both in membrane (for the shaft) and in cartilage (for the ends)."
+  },
+  { 
+    question: "The acromioclavicular joint is:", 
+    options: ["Plane synovial joint", "Ball and socket joint", "Hinge joint", "Pivot joint"], 
+    correct: "Plane synovial joint",
+    explanation: "The AC joint is a plane synovial joint that allows gliding movements."
+  },
+  { 
+    question: "The glenohumeral joint has all these ligaments except:", 
+    options: ["Coracohumeral", "Glenohumeral", "Coracoacromial", "Costoclavicular"], 
+    correct: "Costoclavicular",
+    explanation: "Costoclavicular ligament stabilizes the sternoclavicular joint, not the glenohumeral joint."
+  },
+  { 
+    question: "The coracoacromial arch prevents:", 
+    options: ["Upward displacement of humerus", "Downward displacement", "Posterior displacement", "Forward displacement"], 
+    correct: "Upward displacement of humerus",
+    explanation: "The coracoacromial arch prevents superior displacement of the humeral head."
+  },
+  { 
+    question: "The blood supply of the shoulder joint is from:", 
+    options: ["Circumflex humeral and suprascapular arteries", "Axillary artery only", "Thoracoacromial artery only", "Radial artery"], 
+    correct: "Circumflex humeral and suprascapular arteries",
+    explanation: "The shoulder joint receives blood supply from anterior/posterior circumflex humeral and suprascapular arteries."
+  },
+  { 
+    question: "The nerve supply of the shoulder joint includes:", 
+    options: ["Axillary and suprascapular nerves", "Radial and median nerves", "Musculocutaneous and ulnar nerves", "Dorsal scapular nerve"], 
+    correct: "Axillary and suprascapular nerves",
+    explanation: "The shoulder joint is supplied by axillary, suprascapular, and lateral pectoral nerves."
+  },
+  { 
+    question: "Pain from the shoulder joint is referred to:", 
+    options: ["Deltoid area", "Chest", "Neck", "Forearm"], 
+    correct: "Deltoid area",
+    explanation: "Shoulder joint pain is typically referred to the deltoid region due to shared nerve supply (axillary nerve)."
+  },
+  { 
+    question: "Dislocation of the shoulder most commonly occurs:", 
+    options: ["Anteriorly and inferiorly", "Posteriorly", "Superiorly", "Medially"], 
+    correct: "Anteriorly and inferiorly",
+    explanation: "Anterior-inferior dislocations account for 95-97% of all shoulder dislocations."
+  },
+  { 
+    question: "Frozen shoulder primarily affects the:", 
+    options: ["Capsule of shoulder joint", "Coracoacromial ligament", "Deltoid", "Biceps tendon"], 
+    correct: "Capsule of shoulder joint",
+    explanation: "Frozen shoulder (adhesive capsulitis) involves fibrosis and contracture of the shoulder joint capsule."
+  },
+  { 
+    question: "The subscapular bursa communicates with:", 
+    options: ["Shoulder joint cavity", "Subacromial bursa", "Axillary sheath", "Glenoid cavity"], 
+    correct: "Shoulder joint cavity",
+    explanation: "The subscapular bursa communicates with the shoulder joint cavity."
+  },
+  { 
+    question: "The rotator cuff does not include:", 
+    options: ["Supraspinatus", "Infraspinatus", "Teres major", "Subscapularis"], 
+    correct: "Teres major",
+    explanation: "Teres major is not part of the rotator cuff. The rotator cuff consists of supraspinatus, infraspinatus, teres minor, and subscapularis."
+  },
+  { 
+    question: "The first bone to ossify in the body is:", 
+    options: ["Clavicle", "Femur", "Mandible", "Humerus"], 
+    correct: "Clavicle",
+    explanation: "The clavicle is the first bone to begin ossification in fetal development (6th week)."
+  },
+  { 
+    question: "The muscle forming the anterior axillary fold is:", 
+    options: ["Pectoralis major", "Latissimus dorsi", "Teres major", "Serratus anterior"], 
+    correct: "Pectoralis major",
+    explanation: "The anterior axillary fold is formed by the lower border of pectoralis major."
+  },
+  { 
+    question: "The posterior axillary fold is formed by:", 
+    options: ["Latissimus dorsi and teres major", "Pectoralis minor and major", "Subscapularis and serratus anterior", "Trapezius and rhomboids"], 
+    correct: "Latissimus dorsi and teres major",
+    explanation: "The posterior axillary fold is formed by latissimus dorsi and teres major muscles."
+  },
+  { 
+    question: "The axillary vein is formed at the lower border of:", 
+    options: ["Teres major", "Subscapularis", "Pectoralis minor", "Clavicle"], 
+    correct: "Teres major",
+    explanation: "The axillary vein is formed at the lower border of teres major by the union of basilic vein and venae comitantes of brachial artery."
+  },
+  { 
+    question: "The cephalic vein pierces the:", 
+    options: ["Clavipectoral fascia", "Axillary sheath", "Deep fascia of arm", "Pectoral fascia"], 
+    correct: "Clavipectoral fascia",
+    explanation: "The cephalic vein pierces the clavipectoral fascia to drain into the axillary vein."
+  },
+  { 
+    question: "The lateral thoracic artery runs with which nerve?", 
+    options: ["Long thoracic nerve", "Thoracodorsal nerve", "Axillary nerve", "Intercostobrachial nerve"], 
+    correct: "Long thoracic nerve",
+    explanation: "The lateral thoracic artery runs with the long thoracic nerve along the lateral thoracic wall."
+  },
+  { 
+    question: "The axillary artery becomes brachial at the:", 
+    options: ["Lower border of teres major", "Upper border of pectoralis major", "Middle of arm", "Apex of axilla"], 
+    correct: "Lower border of teres major",
+    explanation: "The axillary artery becomes the brachial artery at the lower border of teres major."
+  },
+  { 
+    question: "The first part of the axillary artery gives:", 
+    options: ["Superior thoracic artery", "Thoracoacromial artery", "Lateral thoracic artery", "Subscapular artery"], 
+    correct: "Superior thoracic artery",
+    explanation: "The first part of axillary artery gives off the superior thoracic artery."
+  },
+  { 
+    question: "The second part of the axillary artery gives:", 
+    options: ["Thoracoacromial and lateral thoracic arteries", "Subscapular and circumflex humeral arteries", "Superior thoracic artery only", "Posterior circumflex humeral artery only"], 
+    correct: "Thoracoacromial and lateral thoracic arteries",
+    explanation: "The second part of axillary artery gives off thoracoacromial and lateral thoracic arteries."
+  },
+  { 
+    question: "The third part of the axillary artery gives:", 
+    options: ["Subscapular and circumflex humeral arteries", "Thoracoacromial artery only", "Superior thoracic artery", "Lateral thoracic artery"], 
+    correct: "Subscapular and circumflex humeral arteries",
+    explanation: "The third part of axillary artery gives off subscapular, anterior circumflex humeral, and posterior circumflex humeral arteries."
+  },
+  { 
+    question: "The nerve that winds around the surgical neck of the humerus is:", 
+    options: ["Axillary nerve", "Radial nerve", "Musculocutaneous nerve", "Ulnar nerve"], 
+    correct: "Axillary nerve",
+    explanation: "The axillary nerve winds around the surgical neck of the humerus, making it vulnerable in fractures."
+  },
+  { 
+    question: "The suprascapular nerve arises from:", 
+    options: ["Upper trunk of brachial plexus", "Lateral cord", "Posterior cord", "Medial cord"], 
+    correct: "Upper trunk of brachial plexus",
+    explanation: "The suprascapular nerve arises from the upper trunk of the brachial plexus (C5-C6)."
+  },
+  { 
+    question: "The thoracodorsal nerve supplies:", 
+    options: ["Latissimus dorsi", "Teres major", "Subscapularis", "Serratus anterior"], 
+    correct: "Latissimus dorsi",
+    explanation: "The thoracodorsal nerve supplies the latissimus dorsi muscle."
+  },
+  { 
+    question: "Damage to the axillary nerve leads to loss of:", 
+    options: ["Shoulder abduction", "Shoulder adduction", "Elbow flexion", "Arm pronation"], 
+    correct: "Shoulder abduction",
+    explanation: "Axillary nerve injury primarily affects shoulder abduction due to deltoid paralysis."
+  },
+  { 
+    question: "The lymph from the upper limb mainly drains into:", 
+    options: ["Lateral group of axillary nodes", "Central group", "Apical group", "Subscapular group"], 
+    correct: "Lateral group of axillary nodes",
+    explanation: "The lateral (brachial) group of axillary nodes drains the upper limb."
+  },
+  { 
+    question: "The pectoralis minor divides the axillary artery into:", 
+    options: ["Three parts", "Two parts", "Four parts", "One part"], 
+    correct: "Three parts",
+    explanation: "The pectoralis minor muscle divides the axillary artery into three parts: first part (medial to muscle), second part (deep to muscle), third part (lateral to muscle)."
+  }
+];
+document.addEventListener("DOMContentLoaded", () => {
+  document.body.classList.add("fade-in");
+
+  // Read settings from localStorage
+  const numQuestions = parseInt(localStorage.getItem("quizNumQuestions")) || 5;
+  const timerType = localStorage.getItem("quizTimerType") || "untimed";
+  const timeLimit = parseInt(localStorage.getItem("quizTimeLimit")) || 60;
+
+  // Shuffle function
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Select and shuffle questions
+  const randomizedQuestions = shuffle([...questionsArray]);
+  const selectedQuestions = randomizedQuestions.slice(0, Math.min(numQuestions, randomizedQuestions.length));
+
+  // Render questions
+  const quizContainer = document.getElementById("quizContainer");
+  quizContainer.innerHTML = "";
+
+  selectedQuestions.forEach((q, index) => {
+    const questionDiv = document.createElement("div");
+    questionDiv.classList.add("question-card");
+    questionDiv.innerHTML = `
+      <p><strong>Q${index + 1}:</strong> ${q.question}</p>
+      ${q.options.map((opt, optIdx) => 
+        `<button class="option" data-q="${index}" data-opt="${optIdx}">${opt}</button>`
+      ).join('')}
+    `;
+    quizContainer.appendChild(questionDiv);
+  });
+
+  // Initialize tracking variables
+  let attempted = 0;
+  const attemptedBox = document.getElementById("attempted");
+  const skippedBox = document.getElementById("skipped");
+  const progressBox = document.getElementById("progress");
+  
+  const answeredState = new Array(selectedQuestions.length).fill(false);
+  const selectedOptionIndex = new Array(selectedQuestions.length).fill(null);
+
+  // Update tracker display
+  function updateTracker() {
+    attemptedBox.textContent = attempted;
+    skippedBox.textContent = selectedQuestions.length - attempted;
+    progressBox.textContent = `${Math.round((attempted / selectedQuestions.length) * 100)}%`;
+  }
+
+  // Add event listeners to options
+  quizContainer.querySelectorAll(".option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const qIndex = parseInt(btn.dataset.q);
+      const optIndex = parseInt(btn.dataset.opt);
+      
+      // Get all options for this question
+      const questionOptions = btn.closest('.question-card').querySelectorAll('.option');
+      
+      // Remove selected class from all options in this question
+      questionOptions.forEach(opt => opt.classList.remove('selected'));
+      
+      // Add selected class to clicked option
+      btn.classList.add('selected');
+      
+      // Update tracking
+      if (!answeredState[qIndex]) {
+        answeredState[qIndex] = true;
+        attempted++;
+      }
+      selectedOptionIndex[qIndex] = optIndex;
+      
+      updateTracker();
+    });
+  });
+
+  // Timer functionality
+  const timerElement = document.getElementById("timer");
+  let timerInterval = null;
+
+  if (timerType === "timed") {
+    let timeRemaining = timeLimit * 60;
+    
+    const updateTimer = () => {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      if (timeRemaining <= 0) {
+        clearInterval(timerInterval);
+        submitQuiz();
+      }
+      timeRemaining--;
+    };
+
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+  } else {
+    timerElement.textContent = "Untimed";
+  }
+
+  // Submit quiz function WITH EXPLANATIONS AND CUSTOM MODAL
+  function submitQuiz() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
+
+    let score = 0;
+    let incorrectQuestions = [];
+    
+    // Evaluate answers and show explanations for incorrect ones
+    selectedQuestions.forEach((q, qIndex) => {
+      const selectedOptIndex = selectedOptionIndex[qIndex];
+      const questionCard = quizContainer.children[qIndex];
+      
+      // Create explanation div
+      let explanationDiv = questionCard.querySelector('.explanation');
+      if (!explanationDiv) {
+        explanationDiv = document.createElement('div');
+        explanationDiv.classList.add('explanation');
+        explanationDiv.innerHTML = `<strong>Explanation:</strong> ${q.explanation}`;
+        questionCard.appendChild(explanationDiv);
+      }
+
+      if (selectedOptIndex !== null) {
+        const selectedAnswer = q.options[selectedOptIndex];
+        const correctAnswer = q.correct;
+        
+        if (selectedAnswer === correctAnswer) {
+          score++;
+          // Don't show explanation for correct answers
+        } else {
+          // Show explanation only for incorrect answers
+          explanationDiv.classList.add('show');
+          incorrectQuestions.push({
+            question: q.question,
+            selected: selectedAnswer,
+            correct: correctAnswer,
+            explanation: q.explanation
+          });
+        }
+        
+        // Highlight correct/wrong answers
+        const options = questionCard.querySelectorAll('.option');
+        
+        options.forEach((opt, optIndex) => {
+          if (q.options[optIndex] === correctAnswer) {
+            opt.classList.add('correct');
+          } else if (optIndex === selectedOptIndex && selectedAnswer !== correctAnswer) {
+            opt.classList.add('wrong');
+          }
+        });
+      } else {
+        // Unanswered questions - show explanation and mark as incorrect
+        explanationDiv.classList.add('show');
+        incorrectQuestions.push({
+          question: q.question,
+          selected: "Not attempted",
+          correct: q.correct,
+          explanation: q.explanation
+        });
+        
+        // Highlight correct answer for unanswered questions
+        const options = questionCard.querySelectorAll('.option');
+        options.forEach((opt, optIndex) => {
+          if (q.options[optIndex] === q.correct) {
+            opt.classList.add('correct');
+          }
+        });
+      }
+    });
+
+    // Create results summary
+    const percentage = Math.round((score / selectedQuestions.length) * 100);
+    const resultsHTML = `
+      <div class="results-summary">
+        <div class="score-display">Your Score: ${score}/${selectedQuestions.length} (${percentage}%)</div>
+        ${incorrectQuestions.length > 0 ? `
+          <div style="margin: 10px 0;">Questions to review: ${incorrectQuestions.length}</div>
+          <button class="review-toggle" onclick="toggleAllExplanations()">
+            Show/Hide All Explanations
+          </button>
+        ` : '<div style="margin: 10px 0;">Perfect! All answers correct! 🎉</div>'}
+      </div>
+    `;
+    
+    // Insert results at the top
+    quizContainer.insertAdjacentHTML('afterbegin', resultsHTML);
+
+    // Show custom modal instead of alert
+    setTimeout(() => {
+      showCustomModal(score, selectedQuestions.length, percentage, incorrectQuestions.length);
+    }, 500);
+    
+    // Disable further interactions
+    quizContainer.querySelectorAll('.option').forEach(btn => {
+      btn.style.pointerEvents = 'none';
+    });
+    document.getElementById('submitQuiz').disabled = true;
+    
+    // Scroll to top to show results
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Function to toggle all explanations
+  window.toggleAllExplanations = function() {
+    const explanations = document.querySelectorAll('.explanation');
+    const allHidden = Array.from(explanations).every(exp => !exp.classList.contains('show'));
+    
+    explanations.forEach(exp => {
+      if (allHidden) {
+        exp.classList.add('show');
+      } else {
+        exp.classList.remove('show');
+      }
+    });
+    
+    // Update button text
+    const button = document.querySelector('.review-toggle');
+    if (button) {
+      button.textContent = allHidden ? 'Hide All Explanations' : 'Show All Explanations';
+    }
+  }
+
+  // Custom Modal Functions
+  function showCustomModal(score, total, percentage, incorrectCount) {
+    const modal = document.getElementById('customModal');
+    const modalScore = document.getElementById('modalScore');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalIcon = document.querySelector('.modal-icon');
+    
+    // Update modal content
+    modalScore.textContent = `${score}/${total} (${percentage}%)`;
+    
+    if (percentage === 100) {
+      modalIcon.textContent = '🎉';
+      modalMessage.textContent = 'Perfect score! Outstanding performance!';
+      createConfetti();
+    } else if (percentage >= 80) {
+      modalIcon.textContent = '⭐';
+      modalMessage.textContent = `Excellent work! Review ${incorrectCount} question(s) below.`;
+    } else if (percentage >= 60) {
+      modalIcon.textContent = '👍';
+      modalMessage.textContent = `Good effort! Review ${incorrectCount} question(s) to improve.`;
+    } else {
+      modalIcon.textContent = '💪';
+      modalMessage.textContent = `Keep practicing! Review ${incorrectCount} question(s) to learn more.`;
+    }
+    
+    // Show modal with animation
+    modal.classList.add('show');
+    setTimeout(() => {
+      document.querySelector('.modal-content').classList.add('show');
+    }, 100);
+  }
+
+  // Make closeModal globally accessible
+  window.closeModal = function() {
+    const modal = document.getElementById('customModal');
+    const modalContent = document.querySelector('.modal-content');
+    
+    if (modal && modalContent) {
+      modalContent.classList.remove('show');
+      setTimeout(() => {
+        modal.classList.remove('show');
+      }, 300);
+    }
+  }
+
+  function createConfetti() {
+    const modal = document.getElementById('customModal');
+    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+    
+    for (let i = 0; i < 50; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.left = Math.random() * 100 + '%';
+      confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      confetti.style.animationDelay = (Math.random() * 1) + 's';
+      modal.appendChild(confetti);
+      
+      // Remove confetti after animation
+      setTimeout(() => {
+        if (confetti.parentNode) {
+          confetti.remove();
+        }
+      }, 6000);
+    }
+  }
+
+  // Close modal when clicking outside content
+  document.getElementById('customModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeModal();
+    }
+  });
+
+  // Add submit event listener
+  document.getElementById("submitQuiz").addEventListener("click", submitQuiz);
+
+  // Initialize tracker
+  updateTracker();
+});
+  </script>
+ <!-- Custom Modal -->
+<div id="customModal" class="custom-modal">
+  <div class="modal-content">
+    <div class="modal-icon">🎯</div>
+    <h2 class="modal-title">Quiz Completed!</h2>
+    <div class="modal-score" id="modalScore">0/0 (0%)</div>
+    <p class="modal-message" id="modalMessage">Great job completing the quiz!</p>
+    <button class="modal-button" onclick="closeModal()">Continue Review</button>
+  </div>
+</div> 
+</body>
+</html>

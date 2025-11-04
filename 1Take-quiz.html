@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Take Quiz | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(-45deg, #000000, #2b004b, #001d4a);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body.fade-in { opacity: 1; }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      margin-bottom: 30px;
+    }
+
+    .setting-section {
+      background: rgba(255,255,255,0.05);
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      width: 100%;
+      max-width: 500px;
+      text-align: left;
+    }
+
+    .setting-section h2 {
+      margin-bottom: 15px;
+      color: #00ffff;
+    }
+
+    .setting-section label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 1.1rem;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      font-size: 1rem;
+    }
+
+    .sub-section {
+      margin-top: 15px;
+      display: none;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(90deg, #002aff, #7a00ff);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00ffff;
+    }
+
+    #backButton {
+      background: linear-gradient(90deg, #ff4d4d, #ff99cc);
+    }
+
+    /* Error Modal Styles */
+    .error-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .error-modal.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .error-content {
+      background: linear-gradient(135deg, #330000, #4d0000);
+      border: 2px solid rgba(255, 77, 77, 0.5);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 50px rgba(255, 77, 77, 0.4);
+      transform: scale(0.7) translateY(-50px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .error-content::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 77, 77, 0.1), transparent);
+      animation: shine 3s infinite linear;
+      z-index: -1;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .error-content.show {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    .error-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .error-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      color: #ff4d4d;
+      text-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+    }
+
+    .error-message {
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      line-height: 1.6;
+      color: #ffe6e6;
+    }
+
+    .error-button {
+      background: linear-gradient(90deg, #ff4d4d, #ff6666);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .error-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .error-button:hover::before {
+      left: 100%;
+    }
+
+    .error-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 77, 77, 0.4);
+    }
+
+    .pulse {
+      animation: pulse-red 2s infinite;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Quiz Settings</h1>
+
+  <div class="setting-section">
+    <h2>Number of Questions</h2>
+    <label for="numQuestions">Select number of questions (1-200):</label>
+    <input type="number" id="numQuestions" min="1" max="200" value="50">
+  </div>
+
+  <div class="setting-section">
+    <h2>Timer Settings</h2>
+    <label for="timerMode">Select timer mode:</label>
+    <select id="timerMode">
+      <option value="untimed">Untimed Practice</option>
+      <option value="timed">Timed Practice</option>
+    </select>
+
+    <div class="sub-section" id="timedOptions">
+      <label for="timeLimit">Set time limit (minutes, max 120):</label>
+      <input type="number" id="timeLimit" min="1" max="120" value="60">
+    </div>
+  </div>
+
+  <button id="beginQuiz">Begin Quiz</button>
+  <button id="backButton">← Back</button>
+
+  <!-- Error Modal -->
+  <div id="errorModal" class="error-modal">
+    <div class="error-content">
+      <div class="error-icon">⚠️</div>
+      <h2 class="error-title" id="errorTitle">Invalid Input</h2>
+      <p class="error-message" id="errorMessage">Please check your settings and try again.</p>
+      <button class="error-button" onclick="closeErrorModal()">Try Again</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
+
+      const timerMode = document.getElementById("timerMode");
+      const timedOptions = document.getElementById("timedOptions");
+      const beginQuiz = document.getElementById("beginQuiz");
+      const numQuestionsInput = document.getElementById("numQuestions");
+      const timeLimitInput = document.getElementById("timeLimit");
+      const backButton = document.getElementById("backButton");
+
+      // Show/hide timed options
+      timerMode.addEventListener("change", () => {
+        timedOptions.style.display = timerMode.value === "timed" ? "block" : "none";
+      });
+
+      if(timerMode.value === "timed") timedOptions.style.display = "block";
+
+<!-- Begin Quiz button -->
+beginQuiz.addEventListener("click", () => {
+  let numQuestions = parseInt(numQuestionsInput.value);
+  let timerType = timerMode.value;
+  let timeLimit = timerType === "timed" ? parseInt(timeLimitInput.value) : null;
+
+  // Validation (unchanged)
+  if(isNaN(numQuestions) || numQuestions < 1 || numQuestions > 200) {
+    showErrorModal(
+      "Invalid Number of Questions", 
+      "Please select a valid number of questions between 1 and 200."
+    );
+    return;
+  }
+  if(timerType === "timed" && (isNaN(timeLimit) || timeLimit < 1 || timeLimit > 120)) {
+    showErrorModal(
+      "Invalid Time Limit", 
+      "Please set a valid time limit between 1 and 120 minutes."
+    );
+    return;
+  }
+
+  // Save settings
+  localStorage.setItem("quizNumQuestions", numQuestions);
+  localStorage.setItem("quizTimerType", timerType);
+  if(timerType === "timed") localStorage.setItem("quizTimeLimit", timeLimit);
+
+  // ✅ Navigate to quiz-for-arm.html
+  document.body.classList.remove("fade-in");
+  setTimeout(() => window.location.href = "quiz-for-arm.html", 600);
+});
+
+      // Back button with fade-out - FIXED to go to Arm Action.html
+      backButton.addEventListener("click", () => {
+        document.body.classList.remove("fade-in");
+        setTimeout(() => {
+          window.location.href = "Arm Action.html";
+        }, 600);
+      });
+
+      // Error Modal Functions
+      function showErrorModal(title, message) {
+        const modal = document.getElementById('errorModal');
+        const errorTitle = document.getElementById('errorTitle');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        errorTitle.textContent = title;
+        errorMessage.textContent = message;
+        
+        modal.classList.add('show');
+        setTimeout(() => {
+          document.querySelector('.error-content').classList.add('show');
+        }, 100);
+      }
+
+      function closeErrorModal() {
+        const modal = document.getElementById('errorModal');
+        const errorContent = document.querySelector('.error-content');
+        
+        errorContent.classList.remove('show');
+        setTimeout(() => {
+          modal.classList.remove('show');
+        }, 300);
+      }
+
+      // Make closeErrorModal globally accessible
+      window.closeErrorModal = closeErrorModal;
+
+      // Close modal when clicking outside content
+      document.getElementById('errorModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeErrorModal();
+        }
+      });
+
+      // Add input validation with visual feedback
+      numQuestionsInput.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        if (value < 1 || value > 200) {
+          this.style.borderColor = '#ff4d4d';
+          this.style.boxShadow = '0 0 10px rgba(255, 77, 77, 0.5)';
+        } else {
+          this.style.borderColor = 'rgba(255,255,255,0.3)';
+          this.style.boxShadow = 'none';
+        }
+      });
+
+      timeLimitInput.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        if (value < 1 || value > 120) {
+          this.style.borderColor = '#ff4d4d';
+          this.style.boxShadow = '0 0 10px rgba(255, 77, 77, 0.5)';
+        } else {
+          this.style.borderColor = 'rgba(255,255,255,0.3)';
+          this.style.boxShadow = 'none';
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gross Anatomy | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Unique hover colors for each card */
+    .course-card[data-topic="Regional Anatomy"]:hover { box-shadow: 0 0 25px #ff4d4d; border-color: #ff4d4d; }
+    .course-card[data-topic="Systemic Anatomy"]:hover { box-shadow: 0 0 25px #4dff4d; border-color: #4dff4d; }
+    .course-card[data-topic="Surface Anatomy"]:hover { box-shadow: 0 0 25px #4d4dff; border-color: #4d4dff; }
+    .course-card[data-topic="Osteology"]:hover { box-shadow: 0 0 25px #ffb84d; border-color: #ffb84d; }
+    .course-card[data-topic="Arthrology"]:hover { box-shadow: 0 0 25px #ff4dff; border-color: #ff4dff; }
+    .course-card[data-topic="Myology"]:hover { box-shadow: 0 0 25px #4dffff; border-color: #4dffff; }
+    .course-card[data-topic="Angiology"]:hover { box-shadow: 0 0 25px #ffff4d; border-color: #ffff4d; }
+    .course-card[data-topic="Neurology"]:hover { box-shadow: 0 0 25px #ff704d; border-color: #ff704d; }
+    .course-card[data-topic="Lymphatics"]:hover { box-shadow: 0 0 25px #70ff4d; border-color: #70ff4d; }
+    .course-card[data-topic="Randomized Session"]:hover { box-shadow: 0 0 25px #4d70ff; border-color: #4d70ff; }
+
+    /* Tooltip summary */
+    .course-card::after {
+      content: attr(data-summary);
+      position: absolute;
+      bottom: -70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 10px;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 10;
+    }
+
+    .course-card:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px);
+    }
+
+    /* Clicked effect */
+    .course-card.clicked {
+      box-shadow: 0 0 35px 15px rgba(0, 255, 255, 0.7);
+      transition: box-shadow 0.3s ease;
+    }
+
+    /* Back Button */
+    #backButton {
+      margin-top: 50px;
+      background: linear-gradient(90deg, #002aff, #7a00ff);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #backButton:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body class="choose-course-page">
+
+  <header>
+    <h1>Gross Anatomy</h1>
+  </header>
+
+  <main>
+    <div class="course-grid">
+      <div class="course-card" data-topic="Regional Anatomy" data-summary="Covers Upper & Lower Limbs, Head & Neck, Thorax, Abdomen, Pelvis, Back. Bones, muscles, nerves, vessels, lymphatics, joints, clinical correlations.">1. Regional Anatomy</div>
+
+      <div class="course-card" data-topic="Systemic Anatomy" data-summary="Focus on systems: musculoskeletal, cardiovascular, respiratory, gastrointestinal, urinary, reproductive, nervous.">2. Systemic Anatomy</div>
+
+      <div class="course-card" data-topic="Surface Anatomy" data-summary="Landmarks, palpable structures, pulses, bony prominences, injection sites, incision points.">3. Surface Anatomy</div>
+
+      <div class="course-card" data-topic="Osteology" data-summary="Identify each bone’s features, articulations, movements, ossification & clinical relevance.">4. Osteology</div>
+
+      <div class="course-card" data-topic="Arthrology" data-summary="Joint classification & structure, movements, ligaments & clinical injuries.">5. Arthrology</div>
+
+      <div class="course-card" data-topic="Myology" data-summary="Origin, insertion, action, nerve & blood supply; functional grouping.">6. Myology</div>
+
+      <div class="course-card" data-topic="Angiology" data-summary="Arteries & veins, major branches & anastomoses, clinical correlations (blockages, catheterization sites).">7. Angiology</div>
+
+      <div class="course-card" data-topic="Neurology" data-summary="Peripheral nerves, plexuses, spinal cord levels, cranial nerves & key functions, clinical syndromes.">8. Neurology</div>
+
+      <div class="course-card" data-topic="Lymphatics" data-summary="Lymph nodes & drainage patterns, clinical importance (metastasis, infection routes).">9. Lymphatics</div>
+
+      <div class="course-card" data-topic="Randomized Session" data-summary="A randomized mix of topics for revision and practice.">10. Randomized Session</div>
+    </div>
+
+    <button id="backButton">← Back to Courses</button>
+  </main>
+
+  <footer>
+    <p>© D Osteomologist 2025</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Fade-in
+      document.body.classList.add("fade-in");
+
+      const courseCards = document.querySelectorAll(".course-card");
+      const backButton = document.getElementById("backButton");
+
+      // Topic selection
+      courseCards.forEach(card => {
+        card.addEventListener("click", () => {
+          const topic = card.dataset.topic;
+          localStorage.setItem("grossAnatomyTopic", topic);
+          card.classList.add("clicked");
+          setTimeout(() => {
+            card.classList.remove("clicked");
+            // Redirect only for Regional Anatomy
+            if(topic === "Regional Anatomy") {
+              window.location.href = "gross-anatomy-regional.html";
+            } else {
+              alert(`Opening ${topic} content... (feature coming soon)`);
+            }
+          }, 700);
+        });
+      });
+
+      // Back button with fade-out
+      backButton.addEventListener("click", () => {
+        document.body.classList.remove("fade-in");
+        setTimeout(() => {
+          window.location.href = "choose-course.html";
+        }, 600);
+      });
+    });
+  </script>
+
+</body>
+</html>

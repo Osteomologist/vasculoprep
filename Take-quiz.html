@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Take Quiz | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(-45deg, #000000, #2b004b, #001d4a);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body.fade-in { opacity: 1; }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      margin-bottom: 30px;
+    }
+
+    .setting-section {
+      background: rgba(255,255,255,0.05);
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      width: 100%;
+      max-width: 500px;
+      text-align: left;
+    }
+
+    .setting-section h2 {
+      margin-bottom: 15px;
+      color: #00ffff;
+    }
+
+    .setting-section label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 1.1rem;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      font-size: 1rem;
+    }
+
+    .sub-section {
+      margin-top: 15px;
+      display: none;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(90deg, #002aff, #7a00ff);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00ffff;
+    }
+
+    #backButton {
+      background: linear-gradient(90deg, #ff4d4d, #ff99cc);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Quiz Settings</h1>
+
+  <div class="setting-section">
+    <h2>Number of Questions</h2>
+    <label for="numQuestions">Select number of questions (1-300):</label>
+    <input type="number" id="numQuestions" min="1" max="300" value="50">
+  </div>
+
+  <div class="setting-section">
+    <h2>Timer Settings</h2>
+    <label for="timerMode">Select timer mode:</label>
+    <select id="timerMode">
+      <option value="untimed">Untimed Practice</option>
+      <option value="timed">Timed Practice</option>
+    </select>
+
+    <div class="sub-section" id="timedOptions">
+      <label for="timeLimit">Set time limit (minutes, max 120):</label>
+      <input type="number" id="timeLimit" min="1" max="120" value="60">
+    </div>
+  </div>
+
+  <button id="beginQuiz">Begin Quiz</button>
+  <button id="backButton">← Back</button>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
+
+      const timerMode = document.getElementById("timerMode");
+      const timedOptions = document.getElementById("timedOptions");
+      const beginQuiz = document.getElementById("beginQuiz");
+      const numQuestionsInput = document.getElementById("numQuestions");
+      const timeLimitInput = document.getElementById("timeLimit");
+      const backButton = document.getElementById("backButton");
+
+      // Show/hide timed options
+      timerMode.addEventListener("change", () => {
+        timedOptions.style.display = timerMode.value === "timed" ? "block" : "none";
+      });
+
+      if(timerMode.value === "timed") timedOptions.style.display = "block";
+
+      // Begin Quiz button
+      beginQuiz.addEventListener("click", () => {
+        let numQuestions = parseInt(numQuestionsInput.value);
+        let timerType = timerMode.value;
+        let timeLimit = timerType === "timed" ? parseInt(timeLimitInput.value) : null;
+
+        if(numQuestions < 1 || numQuestions > 300) {
+          alert("Please select a valid number of questions (1-300).");
+          return;
+        }
+        if(timerType === "timed" && (timeLimit < 1 || timeLimit > 120)) {
+          alert("Please set a valid time limit (1-120 minutes).");
+          return;
+        }
+
+        localStorage.setItem("quizNumQuestions", numQuestions);
+        localStorage.setItem("quizTimerType", timerType);
+        if(timerType === "timed") localStorage.setItem("quizTimeLimit", timeLimit);
+
+        document.body.classList.remove("fade-in");
+        setTimeout(() => window.location.href = "quiz-for-shoulder&pectoral-region.html", 600);
+      });
+
+      // Back button with fade-out
+      backButton.addEventListener("click", () => {
+        document.body.classList.remove("fade-in");
+        setTimeout(() => window.location.href = "shoulder-pectoral-region.html", 600);
+      });
+    });
+  </script>
+
+</body>
+</html>

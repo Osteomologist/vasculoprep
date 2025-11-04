@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regional Anatomy | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-grow: 1;
+      padding: 40px 20px;
+      width: 90%;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      margin-bottom: 30px;
+      text-align: center;
+      width: 100%;
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      color: #00ffff;
+      width: 100%;
+      text-align: left;
+    }
+
+    .region-button {
+      width: 100%;
+      max-width: 600px;
+      padding: 15px 20px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+
+    /* Hover glow with different colors per section */
+    .upper-limb:hover { box-shadow: 0 0 25px #ff4d4d; border-color: #ff4d4d; }
+    .lower-limb:hover { box-shadow: 0 0 25px #4dff4d; border-color: #4dff4d; }
+    .head-neck:hover { box-shadow: 0 0 25px #4d4dff; border-color: #4d4dff; }
+    .thorax:hover { box-shadow: 0 0 25px #ffb84d; border-color: #ffb84d; }
+    .abdomen-pelvis:hover { box-shadow: 0 0 25px #ff4dff; border-color: #ff4dff; }
+    .back-vertebrae:hover { box-shadow: 0 0 25px #4dffff; border-color: #4dffff; }
+
+    .region-button.clicked {
+      box-shadow: 0 0 35px 15px rgba(0, 255, 255, 0.7);
+      transition: box-shadow 0.3s ease;
+    }
+
+    #backButton {
+      margin-top: 30px;
+      background: linear-gradient(90deg, #002aff, #7a00ff);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #backButton:hover { transform: scale(1.05); }
+  </style>
+</head>
+<body class="choose-course-page">
+
+  <header>
+    <h1>Regional Anatomy</h1>
+  </header>
+
+  <main>
+    <h2>Upper Limb</h2>
+    <button class="region-button upper-limb" id="shoulderButton">Shoulder & Pectoral Region</button>
+    <button class="region-button upper-limb" id="armButton">Arm (Brachium)</button>
+    <button class="region-button upper-limb">Forearm</button>
+    <button class="region-button upper-limb">Hand</button>
+
+    <h2>Lower Limb</h2>
+    <button class="region-button lower-limb">Hip & Gluteal Region</button>
+    <button class="region-button lower-limb">Thigh</button>
+    <button class="region-button lower-limb">Leg (Crus)</button>
+    <button class="region-button lower-limb">Foot</button>
+
+    <h2>Head & Neck</h2>
+    <button class="region-button head-neck">Skull (Viscerocranium & Neurocranium)</button>
+    <button class="region-button head-neck">Face</button>
+    <button class="region-button head-neck">Scalp</button>
+    <button class="region-button head-neck">Neck triangles (Anterior & Posterior)</button>
+    <button class="region-button head-neck">Pharynx, Larynx, Thyroid</button>
+
+    <h2>Thorax</h2>
+    <button class="region-button thorax">Heart & Great Vessels</button>
+    <button class="region-button thorax">Lungs & Pleura</button>
+    <button class="region-button thorax">Thoracic Wall (Ribs, Muscles, Nerves)</button>
+
+    <h2>Abdomen & Pelvis</h2>
+    <button class="region-button abdomen-pelvis">Abdominal Wall & Peritoneum</button>
+    <button class="region-button abdomen-pelvis">Gastrointestinal Organs</button>
+    <button class="region-button abdomen-pelvis">Kidneys & Suprarenal Glands</button>
+    <button class="region-button abdomen-pelvis">Pelvis (Male & Female)</button>
+    <button class="region-button abdomen-pelvis">Perineum</button>
+
+    <h2>Back & Vertebral Column</h2>
+    <button class="region-button back-vertebrae">Vertebrae & Spinal Cord</button>
+    <button class="region-button back-vertebrae">Back Muscles (Superficial, Intermediate, Deep)</button>
+    <button class="region-button back-vertebrae">Ligaments & Joints</button>
+    <button class="region-button back-vertebrae">Spinal Nerves</button>
+
+    <button id="backButton">← Back to Gross Anatomy</button>
+  </main>
+
+  <footer>
+    <p>© D Osteomologist 2025</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
+
+      const shoulderButton = document.getElementById("shoulderButton");
+      const armButton = document.getElementById("armButton");
+      const regionButtons = document.querySelectorAll(".region-button");
+      const backButton = document.getElementById("backButton");
+
+      // Link Shoulder & Pectoral Region to its page
+      shoulderButton.addEventListener("click", () => {
+        shoulderButton.classList.add("clicked");
+        setTimeout(() => {
+          shoulderButton.classList.remove("clicked");
+          window.location.href = "shoulder-pectoral-region.html";
+        }, 400);
+      });
+
+      // Link Arm (Brachium) to Arm Action page
+      armButton.addEventListener("click", () => {
+        armButton.classList.add("clicked");
+        setTimeout(() => {
+          armButton.classList.remove("clicked");
+          window.location.href = "Arm Action.html";
+        }, 400);
+      });
+
+      // Other buttons (placeholders)
+      regionButtons.forEach(btn => {
+        if(btn.id !== "shoulderButton" && btn.id !== "armButton") {
+          btn.addEventListener("click", () => {
+            btn.classList.add("clicked");
+            setTimeout(() => btn.classList.remove("clicked"), 700);
+            alert(`You clicked: ${btn.textContent}\n(Feature coming soon)`);
+          });
+        }
+      });
+
+      backButton.addEventListener("click", () => {
+        document.body.classList.remove("fade-in");
+        setTimeout(() => window.location.href = "gross-anatomy.html", 600);
+      });
+    });
+  </script>
+
+</body>
+</html>

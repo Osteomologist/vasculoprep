@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biochemistry | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Unique hover colors for each session */
+    .course-card[data-topic="General Biochemistry / Basics"]:hover { box-shadow: 0 0 25px #ff4d4d; border-color: #ff4d4d; }
+    .course-card[data-topic="Biomolecules"]:hover { box-shadow: 0 0 25px #4dff4d; border-color: #4dff4d; }
+    .course-card[data-topic="Metabolism"]:hover { box-shadow: 0 0 25px #4d4dff; border-color: #4d4dff; }
+    .course-card[data-topic="Molecular Biology & Biotechnology"]:hover { box-shadow: 0 0 25px #ffb84d; border-color: #ffb84d; }
+    .course-card[data-topic="Clinical & Applied Biochemistry"]:hover { box-shadow: 0 0 25px #ff4dff; border-color: #ff4dff; }
+    .course-card[data-topic="Vitamins & Minerals"]:hover { box-shadow: 0 0 25px #4dffff; border-color: #4dffff; }
+    .course-card[data-topic="Randomized Session"]:hover { box-shadow: 0 0 25px #ffff4d; border-color: #ffff4d; }
+
+    /* Tooltip summary */
+    .course-card::after {
+      content: attr(data-summary);
+      position: absolute;
+      bottom: -70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 10px;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 10;
+    }
+
+    .course-card:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px);
+    }
+
+    /* Clicked effect */
+    .course-card.clicked {
+      box-shadow: 0 0 35px 15px rgba(0, 255, 255, 0.7);
+      transition: box-shadow 0.3s ease;
+    }
+
+    /* Back Button */
+    #backButton {
+      margin-top: 50px;
+      background: linear-gradient(90deg, #002aff, #7a00ff);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #backButton:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body class="choose-course-page">
+
+  <header>
+    <h1>Biochemistry</h1>
+  </header>
+
+  <main>
+    <div class="course-grid">
+      <div class="course-card" data-topic="General Biochemistry / Basics" data-summary="Water structure & properties, pH, acids & bases, buffers, enzyme basics, vitamins & cofactors.">1. General Biochemistry / Basics</div>
+
+      <div class="course-card" data-topic="Biomolecules" data-summary="Carbohydrates, lipids, proteins & amino acids, nucleic acids; structure, function & clinical relevance.">2. Biomolecules</div>
+
+      <div class="course-card" data-topic="Metabolism" data-summary="Carbohydrate, lipid, protein metabolism; TCA cycle, glycolysis, urea cycle, energy & metabolic regulation.">3. Metabolism</div>
+
+      <div class="course-card" data-topic="Molecular Biology & Biotechnology" data-summary="DNA/RNA technologies: PCR, sequencing, cloning; recombinant DNA; gene expression & clinical applications.">4. Molecular Biology & Biotechnology</div>
+
+      <div class="course-card" data-topic="Clinical & Applied Biochemistry" data-summary="Enzyme deficiencies, metabolic disorders, biochemical basis of diseases, hormone biochemistry, diagnostic markers.">5. Clinical & Applied Biochemistry</div>
+
+      <div class="course-card" data-topic="Vitamins & Minerals" data-summary="Water- & fat-soluble vitamins, coenzymes, deficiency & toxicity, essential minerals & trace elements.">6. Vitamins & Minerals</div>
+
+      <div class="course-card" data-topic="Randomized Session" data-summary="Randomized session for review and practice of all biochemistry topics.">7. Randomized Session</div>
+    </div>
+
+    <button id="backButton">← Back to Courses</button>
+  </main>
+
+  <footer>
+    <p>© D Osteomologist 2025</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Fade-in
+      document.body.classList.add("fade-in");
+
+      const courseCards = document.querySelectorAll(".course-card");
+      const backButton = document.getElementById("backButton");
+
+      // Topic selection
+      courseCards.forEach(card => {
+        card.addEventListener("click", () => {
+          const topic = card.dataset.topic;
+          localStorage.setItem("biochemistryTopic", topic);
+          card.classList.add("clicked");
+          setTimeout(() => {
+            card.classList.remove("clicked");
+            alert(`Opening ${topic} content... (feature coming soon)`);
+          }, 700);
+        });
+      });
+
+      // Back button with fade-out
+      backButton.addEventListener("click", () => {
+        document.body.classList.remove("fade-in");
+        setTimeout(() => {
+          window.location.href = "choose-course.html";
+        }, 600);
+      });
+    });
+  </script>
+
+</body>
+</html>

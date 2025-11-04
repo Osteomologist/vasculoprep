@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoulder & Pectoral Quiz | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(-45deg, #000000, #2b004b, #001d4a);
+      background-size: 400% 400%;
+      animation: gradientMove 12s ease infinite;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    body.fade-in { opacity: 1; }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    #timer {
+      font-size: 1.2rem;
+      background: rgba(255,255,255,0.1);
+      padding: 8px 15px;
+      border-radius: 8px;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    #quizContainer {
+      overflow-y: auto;
+      max-height: 70vh;
+      margin-bottom: 20px;
+      padding-right: 10px;
+    }
+
+    .question-card {
+      background: #1a0033;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option {
+      background: #2b004b;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      transition: border 0.2s, background 0.2s;
+      text-align: left;
+      color: white;
+    }
+
+    .option.selected {
+      border: 2px solid #00ffff;
+      background: rgba(0,255,255,0.1);
+    }
+
+    .option:hover {
+      background: rgba(0,255,255,0.05);
+    }
+
+    .option.correct {
+      border: 2px solid #00ff66;
+      background: rgba(0,255,102,0.1);
+    }
+
+    .option.wrong {
+      border: 2px solid #ff4d4d;
+      background: rgba(255,77,77,0.1);
+    }
+
+    #tracker {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tracker-box {
+      flex: 1 1 30%;
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    #submitQuiz {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(90deg, #002aff, #7a00ff);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    #submitQuiz:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00ffff;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Shoulder & Pectoral Quiz</h1>
+    <div id="timer">--:--</div>
+  </header>
+
+  <main>
+    <div id="tracker">
+      <div class="tracker-box">Attempted: <span id="attempted">0</span></div>
+      <div class="tracker-box">Skipped: <span id="skipped">0</span></div>
+      <div class="tracker-box">Progress: <span id="progress">0%</span></div>
+    </div>
+
+    <div id="quizContainer">
+      <!-- Questions will be inserted here -->
+    </div>
+
+    <button id="submitQuiz">Submit Quiz</button>
+  </main>
+
+  <script>
+    // Define questions array with correct answers
+    const questionsArray = [
+  { 
+                question: "The main flexor of the elbow joint is:",
+                options: ["Triceps brachii", "Brachialis", "Biceps brachii", "Coracobrachialis"],
+                correct: "Biceps brachii",
+                explanation: "Biceps brachii is the chief flexor of the elbow when the forearm is supinated. Brachialis also flexes the elbow but is deep and works regardless of forearm position."
+            },
+            {
+                question: "The muscle that abducts the arm at the shoulder is:",
+                options: ["Biceps brachii", "Deltoid", "Triceps brachii", "Coracobrachialis"],
+                correct: "Deltoid",
+                explanation: "The deltoid, particularly its middle fibers, is responsible for shoulder abduction. Coracobrachialis flexes and adducts."
+            },
+            {
+                question: "The radial nerve passes through which structure in the arm?",
+                options: ["Carpal tunnel", "Radial groove of the humerus", "Coracobrachialis", "Axillary fossa"],
+                correct: "Radial groove of the humerus",
+                explanation: "The radial nerve runs in the spiral/radial groove of the humerus along with the profunda brachii artery."
+            },
+            {
+                question: "Which artery is the direct continuation of the axillary artery into the arm?",
+                options: ["Brachial artery", "Radial artery", "Ulnar artery", "Subclavian artery"],
+                correct: "Brachial artery",
+                explanation: "The axillary artery continues as the brachial artery at the lower border of teres major."
+            },
+            {
+                question: "The coracobrachialis is supplied by:",
+                options: ["Median nerve", "Musculocutaneous nerve", "Radial nerve", "Ulnar nerve"],
+                correct: "Musculocutaneous nerve",
+                explanation: "Musculocutaneous nerve pierces the coracobrachialis and innervates it."
+            },
+            {
+                question: "The triceps brachii muscle is primarily responsible for:",
+                options: ["Flexion of elbow", "Extension of elbow", "Supination of forearm", "Adduction of shoulder"],
+                correct: "Extension of elbow",
+                explanation: "Triceps brachii is the chief extensor of the elbow joint."
+            },
+            {
+                question: "The long head of triceps originates from:",
+                options: ["Lateral border of scapula", "Infraglenoid tubercle of scapula", "Posterior humerus", "Coracoid process"],
+                correct: "Infraglenoid tubercle of scapula",
+                explanation: "The long head originates from the infraglenoid tubercle; lateral and medial heads originate from the humerus."
+            },
+            {
+                question: "The biceps brachii tendon attaches distally to:",
+                options: ["Coronoid process", "Radial tuberosity", "Olecranon", "Medial epicondyle"],
+                correct: "Radial tuberosity",
+                explanation: "The tendon inserts on the radial tuberosity and contributes to forearm supination."
+            },
+            {
+                question: "Which vein is commonly used for venipuncture in the arm?",
+                options: ["Cephalic vein", "Basilic vein", "Median cubital vein", "Brachial vein"],
+                correct: "Median cubital vein",
+                explanation: "The median cubital vein in the cubital fossa is superficial and easily accessible."
+            },
+            {
+                question: "The brachial artery usually bifurcates into:",
+                options: ["Axillary and subclavian arteries", "Radial and ulnar arteries", "Profunda brachii and superior ulnar collateral", "Radial recurrent and ulnar recurrent"],
+                correct: "Radial and ulnar arteries",
+                explanation: "The brachial artery divides at the cubital fossa into radial and ulnar arteries."
+            },
+            {
+                question: "The muscle that assists in both shoulder flexion and adduction is:",
+                options: ["Triceps brachii", "Coracobrachialis", "Brachialis", "Deltoid"],
+                correct: "Coracobrachialis",
+                explanation: "Coracobrachialis originates from the coracoid process and adducts and flexes the arm."
+            },
+            {
+                question: "Which structure lies medial to the brachial artery in the arm?",
+                options: ["Median nerve", "Ulnar nerve", "Radial nerve", "Musculocutaneous nerve"],
+                correct: "Ulnar nerve",
+                explanation: "Ulnar nerve runs medial to the brachial artery and passes posterior to the medial epicondyle at the elbow."
+            },
+            {
+                question: "The biceps reflex tests which spinal nerve roots?",
+                options: ["C5-C6", "C7-C8", "C4-C5", "T1-T2"],
+                correct: "C5-C6",
+                explanation: "Striking the biceps tendon elicits contraction via the musculocutaneous nerve, testing C5-C6."
+            },
+            {
+                question: "The brachialis muscle:",
+                options: ["Flexes the forearm regardless of pronation or supination", "Supinates the forearm", "Extends the elbow", "Abducts the shoulder"],
+                correct: "Flexes the forearm regardless of pronation or supination",
+                explanation: "Brachialis is a strong flexor, independent of forearm rotation."
+            },
+            {
+                question: "The profunda brachii artery accompanies which nerve?",
+                options: ["Median nerve", "Radial nerve", "Ulnar nerve", "Musculocutaneous nerve"],
+                correct: "Radial nerve",
+                explanation: "Profunda brachii artery runs with the radial nerve in the radial groove."
+            },
+            {
+                question: "The cubital fossa is bounded laterally by:",
+                options: ["Pronator teres", "Brachioradialis", "Medial epicondyle", "Triceps"],
+                correct: "Brachioradialis",
+                explanation: "Lateral boundary is brachioradialis; medial is pronator teres."
+            },
+            {
+                question: "The tendon of which muscle is palpable in the antecubital fossa during supination?",
+                options: ["Brachialis", "Biceps brachii", "Triceps brachii", "Coracobrachialis"],
+                correct: "Biceps brachii",
+                explanation: "Biceps tendon is prominent during flexion and supination."
+            },
+            {
+                question: "The nerve most at risk in a mid-shaft humeral fracture is:",
+                options: ["Musculocutaneous", "Radial", "Median", "Ulnar"],
+                correct: "Radial",
+                explanation: "Radial nerve runs in the radial groove of the humerus and can be injured in mid-shaft fractures."
+            },
+            {
+                question: "The intermuscular septa of the arm:",
+                options: ["Divide arm into anterior and posterior compartments", "Protect the brachial artery only", "Form the flexor retinaculum", "Are absent in the arm"],
+                correct: "Divide arm into anterior and posterior compartments",
+                explanation: "Medial and lateral intermuscular septa separate flexor (anterior) and extensor (posterior) compartments."
+            },
+            {
+                question: "Which muscle of the arm is pierced by a nerve that supplies it?",
+                options: ["Triceps brachii", "Biceps brachii", "Coracobrachialis", "Brachialis"],
+                correct: "Coracobrachialis",
+                explanation: "Musculocutaneous nerve pierces coracobrachialis."
+            },
+            {
+                question: "The terminal branches of the brachial artery are:",
+                options: ["Superior and inferior ulnar collateral", "Radial and ulnar arteries", "Profunda brachii and radial recurrent", "Axillary and subscapular"],
+                correct: "Radial and ulnar arteries",
+                explanation: "The brachial artery divides into radial and ulnar arteries at the cubital fossa."
+            },
+            {
+                question: "The medial cutaneous nerve of the arm arises from:",
+                options: ["Lateral cord of brachial plexus", "Medial cord of brachial plexus", "Posterior cord of brachial plexus", "Radial nerve"],
+                correct: "Medial cord of brachial plexus",
+                explanation: "Medial cutaneous nerve of arm (medial brachial cutaneous) comes from the medial cord."
+            },
+            {
+                question: "Which muscle flexes the shoulder joint weakly?",
+                options: ["Brachialis", "Triceps brachii", "Coracobrachialis", "Anconeus"],
+                correct: "Coracobrachialis",
+                explanation: "Coracobrachialis assists in weak shoulder flexion."
+            },
+            {
+                question: "The lateral head of triceps brachii originates from:",
+                options: ["Posterior humerus above radial groove", "Posterior humerus below radial groove", "Infraglenoid tubercle", "Coracoid process"],
+                correct: "Posterior humerus above radial groove",
+                explanation: "Lateral head originates from the posterior humerus above the radial groove."
+            },
+            {
+                question: "The medial head of triceps brachii originates from:",
+                options: ["Posterior humerus below radial groove", "Posterior humerus above radial groove", "Infraglenoid tubercle", "Coracoid process"],
+                correct: "Posterior humerus below radial groove",
+                explanation: "Medial head lies deep, originates below radial groove."
+            },
+            {
+                question: "The nerve supplying all posterior compartment muscles of the arm is:",
+                options: ["Musculocutaneous", "Radial", "Median", "Ulnar"],
+                correct: "Radial",
+                explanation: "Radial nerve supplies triceps brachii and anconeus (posterior compartment)."
+            },
+            {
+                question: "The bicipital aponeurosis blends with:",
+                options: ["Flexor retinaculum", "Brachial fascia", "Ulnar collateral ligament", "Radial tuberosity"],
+                correct: "Brachial fascia",
+                explanation: "Bicipital aponeurosis spreads medially over forearm flexors, merging with forearm fascia."
+            },
+            {
+                question: "The lateral intermuscular septum separates:",
+                options: ["Biceps and brachialis", "Flexor and extensor compartments", "Medial epicondyle and triceps", "Coracobrachialis and deltoid"],
+                correct: "Flexor and extensor compartments",
+                explanation: "Lateral and medial septa divide arm into anterior (flexor) and posterior (extensor) compartments."
+            },
+            {
+                question: "Which artery gives off the superior ulnar collateral artery?",
+                options: ["Brachial artery", "Axillary artery", "Radial artery", "Profunda brachii"],
+                correct: "Brachial artery",
+                explanation: "Superior ulnar collateral artery arises from brachial artery and anastomoses with posterior ulnar recurrent."
+            },
+            {
+                question: "The musculocutaneous nerve terminally continues as:",
+                options: ["Lateral antebrachial cutaneous nerve", "Medial antebrachial cutaneous nerve", "Radial nerve", "Median nerve"],
+                correct: "Lateral antebrachial cutaneous nerve",
+                explanation: "Musculocutaneous nerve becomes lateral antebrachial cutaneous nerve after piercing coracobrachialis."
+            },
+            {
+                question: "Which muscle stabilizes the elbow during supination?",
+                options: ["Brachialis", "Biceps brachii", "Coracobrachialis", "Triceps brachii"],
+                correct: "Biceps brachii",
+                explanation: "Biceps brachii supinates forearm and stabilizes elbow flexion."
+            },
+            {
+                question: "The medial epicondyle of humerus is the origin for:",
+                options: ["Triceps brachii", "Flexor muscles of forearm", "Biceps brachii", "Deltoid"],
+                correct: "Flexor muscles of forearm",
+                explanation: "Common flexor tendon arises from medial epicondyle."
+            },
+            {
+                question: "The lateral epicondyle of humerus is the origin for:",
+                options: ["Flexor muscles of forearm", "Extensor muscles of forearm", "Biceps brachii", "Triceps brachii"],
+                correct: "Extensor muscles of forearm",
+                explanation: "Common extensor tendon arises from lateral epicondyle."
+            },
+            {
+                question: "Which artery gives rise to the profunda brachii?",
+                options: ["Axillary artery", "Brachial artery", "Radial artery", "Ulnar artery"],
+                correct: "Brachial artery",
+                explanation: "Profunda brachii is a branch of brachial artery, supplies posterior compartment."
+            },
+            {
+                question: "The radial nerve exits the axilla through:",
+                options: ["Quadrangular space", "Triangular interval", "Cubital fossa", "Carpal tunnel"],
+                correct: "Triangular interval",
+                explanation: "Radial nerve passes through triangular interval with profunda brachii artery."
+            },
+            {
+                question: "The anconeus muscle is innervated by:",
+                options: ["Radial nerve", "Ulnar nerve", "Median nerve", "Musculocutaneous nerve"],
+                correct: "Radial nerve",
+                explanation: "Radial nerve supplies anconeus, assisting triceps in elbow extension."
+            },
+            {
+                question: "The brachial artery runs with which nerve in the medial bicipital groove?",
+                options: ["Musculocutaneous nerve", "Median nerve", "Radial nerve", "Ulnar nerve"],
+                correct: "Median nerve",
+                explanation: "Median nerve runs along medial side of brachial artery in medial bicipital groove."
+            },
+            {
+                question: "The biceps brachii long head passes through:",
+                options: ["Carpal tunnel", "Intertubercular sulcus of humerus", "Radial groove", "Cubital fossa"],
+                correct: "Intertubercular sulcus of humerus",
+                explanation: "Long head tendon passes through intertubercular sulcus before inserting on radial tuberosity."
+            },
+            {
+                question: "The axillary nerve innervates:",
+                options: ["Deltoid", "Biceps brachii", "Triceps brachii", "Coracobrachialis"],
+                correct: "Deltoid",
+                explanation: "Deltoid and teres minor are supplied by axillary nerve."
+            },
+            {
+                question: "Which artery anastomoses around the elbow with the superior ulnar collateral artery?",
+                options: ["Posterior ulnar recurrent artery", "Radial recurrent artery", "Profunda brachii", "Axillary artery"],
+                correct: "Posterior ulnar recurrent artery",
+                explanation: "Posterior ulnar recurrent artery (from ulnar) anastomoses with superior ulnar collateral artery."
+            },
+            {
+                question: "The flexor compartment of the arm contains:",
+                options: ["Triceps brachii", "Biceps brachii, brachialis, coracobrachialis", "Anconeus", "Deltoid"],
+                correct: "Biceps brachii, brachialis, coracobrachialis",
+                explanation: "Anterior compartment muscles flex the elbow and shoulder."
+            },
+            {
+                question: "The posterior compartment of the arm contains:",
+                options: ["Biceps brachii, brachialis", "Triceps brachii, anconeus", "Coracobrachialis", "Deltoid"],
+                correct: "Triceps brachii, anconeus",
+                explanation: "Triceps brachii and anconeus are extensor muscles in posterior compartment."
+            },
+            {
+                question: "The brachial artery can be compressed against which structure to stop bleeding?",
+                options: ["Medial epicondyle", "Humerus", "Radial groove", "Coracoid process"],
+                correct: "Humerus",
+                explanation: "Brachial artery is compressible against the humerus in arm."
+            },
+            {
+                question: "The musculocutaneous nerve supplies:",
+                options: ["All forearm flexors", "Anterior arm muscles and lateral forearm skin", "Posterior arm muscles", "Medial arm skin"],
+                correct: "Anterior arm muscles and lateral forearm skin",
+                explanation: "Musculocutaneous nerve innervates coracobrachialis, biceps, brachialis, and lateral antebrachial cutaneous skin."
+            },
+            {
+                question: "The radial nerve supplies sensory innervation to:",
+                options: ["Lateral forearm", "Posterior arm, posterior forearm, lateral dorsum of hand", "Medial hand", "Palmar surface"],
+                correct: "Posterior arm, posterior forearm, lateral dorsum of hand",
+                explanation: "Radial nerve supplies skin on posterior arm, forearm, and lateral dorsum of hand."
+            },
+            {
+                question: "The brachial artery is a continuation of:",
+                options: ["Subclavian artery", "Axillary artery", "Radial artery", "Ulnar artery"],
+                correct: "Axillary artery",
+                explanation: "Axillary artery becomes brachial artery at lower border of teres major."
+            },
+            {
+                question: "The median nerve in the arm:",
+                options: ["Lies lateral to brachial artery throughout", "Lies initially lateral, then crosses to medial side", "Pierces coracobrachialis", "Lies in radial groove"],
+                correct: "Lies initially lateral, then crosses to medial side",
+                explanation: "Median nerve starts lateral to brachial artery, crosses anteriorly to lie medial."
+            },
+            {
+                question: "Fracture of the surgical neck of the humerus may damage:",
+                options: ["Radial nerve", "Axillary nerve", "Median nerve", "Ulnar nerve"],
+                correct: "Axillary nerve",
+                explanation: "Axillary nerve winds around surgical neck; commonly injured in fractures here."
+            },
+            {
+                question: "Fracture of mid-shaft humerus may injure:",
+                options: ["Median nerve", "Radial nerve", "Axillary nerve", "Ulnar nerve"],
+                correct: "Radial nerve",
+                explanation: "Radial nerve lies in radial groove mid-shaft; susceptible to fracture injury."
+            },
+            {
+                question: "Which muscle is absent in some individuals and assists weakly in shoulder flexion?",
+                options: ["Coracobrachialis", "Biceps brachii", "Triceps brachii", "Anconeus"],
+                correct: "Coracobrachialis",
+                explanation: "Coracobrachialis may be absent in some; weakly flexes and adducts arm."
+            },
+                        {
+                question: "The biceps brachii short head originates from:",
+                options: ["Coracoid process", "Supraglenoid tubercle", "Infraglenoid tubercle", "Lateral epicondyle"],
+                correct: "Coracoid process",
+                explanation: "The short head arises from the coracoid process, long head from supraglenoid tubercle."
+            },
+            {
+                question: "The tendon of the long head of biceps brachii passes through:",
+                options: ["Cubital fossa", "Intertubercular groove", "Carpal tunnel", "Radial groove"],
+                correct: "Intertubercular groove",
+                explanation: "Long head tendon runs through the intertubercular sulcus of the humerus."
+            },
+            {
+                question: "The lateral cutaneous nerve of the forearm is a continuation of:",
+                options: ["Radial nerve", "Median nerve", "Musculocutaneous nerve", "Ulnar nerve"],
+                correct: "Musculocutaneous nerve",
+                explanation: "Musculocutaneous nerve continues as lateral antebrachial cutaneous nerve after emerging from coracobrachialis."
+            },
+            {
+                question: "The brachialis muscle is supplied by:",
+                options: ["Radial nerve only", "Musculocutaneous nerve only", "Musculocutaneous and radial nerves", "Median nerve only"],
+                correct: "Musculocutaneous and radial nerves",
+                explanation: "Mainly musculocutaneous; small lateral portion may receive radial nerve."
+            },
+            {
+                question: "Which artery accompanies the radial nerve in the radial groove?",
+                options: ["Brachial artery", "Profunda brachii artery", "Radial recurrent artery", "Ulnar artery"],
+                correct: "Profunda brachii artery",
+                explanation: "Profunda brachii artery runs with radial nerve in spiral groove."
+            },
+            {
+                question: "The anconeus muscle assists primarily in:",
+                options: ["Flexion of elbow", "Extension of elbow", "Supination", "Pronation"],
+                correct: "Extension of elbow",
+                explanation: "Small extensor assisting triceps in elbow extension; stabilizes joint."
+            },
+            {
+                question: "The intermuscular septa of the arm are:",
+                options: ["Fibrous extensions of deep fascia", "Tendons of biceps", "Ligaments of elbow", "Branches of brachial artery"],
+                correct: "Fibrous extensions of deep fascia",
+                explanation: "Medial and lateral septa separate anterior and posterior compartments."
+            },
+            {
+                question: "The cubital fossa floor is formed mainly by:",
+                options: ["Biceps brachii tendon", "Brachialis and supinator muscles", "Triceps brachii", "Coracobrachialis"],
+                correct: "Brachialis and supinator muscles",
+                explanation: "Brachialis medially, supinator laterally form floor; roof is fascia and bicipital aponeurosis."
+            },
+            {
+                question: "The bicipital aponeurosis inserts into:",
+                options: ["Radial tuberosity", "Ulna", "Brachial fascia", "Medial epicondyle"],
+                correct: "Brachial fascia",
+                explanation: "Spreads over flexor muscles and blends with antebrachial fascia; protects brachial artery/median nerve."
+            },
+            {
+                question: "The brachial artery lies initially:",
+                options: ["Medial to median nerve", "Lateral to median nerve", "Posterior to ulnar nerve", "Deep to triceps"],
+                correct: "Lateral to median nerve",
+                explanation: "Starts lateral to median nerve, crosses to medial side in arm."
+            },
+            {
+                question: "The posterior compartment of the arm contains:",
+                options: ["Biceps brachii and brachialis", "Triceps brachii and anconeus", "Coracobrachialis only", "Deltoid only"],
+                correct: "Triceps brachii and anconeus",
+                explanation: "Extensors of elbow (triceps, anconeus) form posterior compartment."
+            },
+            {
+                question: "The medial head of triceps lies:",
+                options: ["Superficial", "Deep", "Lateral", "Absent in some individuals"],
+                correct: "Deep",
+                explanation: "Medial head is deep, mainly responsible for sustained elbow extension."
+            },
+            {
+                question: "Which nerve supplies all posterior compartment muscles of the arm?",
+                options: ["Musculocutaneous", "Radial", "Median", "Ulnar"],
+                correct: "Radial",
+                explanation: "Radial nerve innervates triceps and anconeus."
+            },
+            {
+                question: "The superior ulnar collateral artery arises from:",
+                options: ["Axillary artery", "Brachial artery", "Profunda brachii artery", "Radial artery"],
+                correct: "Brachial artery",
+                explanation: "Anastomoses with posterior ulnar recurrent artery around elbow."
+            },
+            {
+                question: "The inferior ulnar collateral artery arises from:",
+                options: ["Axillary artery", "Brachial artery", "Profunda brachii artery", "Radial artery"],
+                correct: "Brachial artery",
+                explanation: "Travels medially to anastomose with anterior ulnar recurrent artery."
+            },
+            {
+                question: "Fracture of mid-shaft humerus most likely injures:",
+                options: ["Median nerve", "Radial nerve", "Ulnar nerve", "Axillary nerve"],
+                correct: "Radial nerve",
+                explanation: "Radial nerve runs in spiral groove along mid-shaft humerus."
+            },
+            {
+                question: "Fracture of surgical neck of humerus most likely injures:",
+                options: ["Median nerve", "Radial nerve", "Axillary nerve", "Musculocutaneous nerve"],
+                correct: "Axillary nerve",
+                explanation: "Axillary nerve winds around surgical neck; susceptible to fracture."
+            },
+            {
+                question: "The median nerve in the arm:",
+                options: ["Lies lateral throughout", "Lies medial throughout", "Crosses from lateral to medial side of brachial artery", "Pierces coracobrachialis"],
+                correct: "Crosses from lateral to medial side of brachial artery",
+                explanation: "Initially lateral to brachial artery, crosses anteriorly to medial side in distal arm."
+            },
+            {
+                question: "The lateral antebrachial cutaneous nerve is a branch of:",
+                options: ["Median nerve", "Musculocutaneous nerve", "Radial nerve", "Ulnar nerve"],
+                correct: "Musculocutaneous nerve",
+                explanation: "Terminal sensory branch of musculocutaneous nerve supplying lateral forearm."
+            },
+            {
+                question: "The long head of triceps originates from:",
+                options: ["Posterior humerus", "Infraglenoid tubercle", "Lateral epicondyle", "Medial epicondyle"],
+                correct: "Infraglenoid tubercle",
+                explanation: "Long head from infraglenoid tubercle; lateral and medial heads from humerus."
+            },
+            {
+                question: "The lateral head of triceps originates from:",
+                options: ["Posterior humerus above radial groove", "Posterior humerus below radial groove", "Infraglenoid tubercle", "Coracoid process"],
+                correct: "Posterior humerus above radial groove",
+                explanation: "Lateral head is superficial, originates above radial groove."
+            },
+            {
+                question: "The medial head of triceps originates from:",
+                options: ["Posterior humerus below radial groove", "Posterior humerus above radial groove", "Infraglenoid tubercle", "Coracoid process"],
+                correct: "Posterior humerus below radial groove",
+                explanation: "Medial head is deep, responsible for sustained elbow extension."
+            },
+            {
+                question: "The coracobrachialis is pierced by:",
+                options: ["Median nerve", "Radial nerve", "Musculocutaneous nerve", "Ulnar nerve"],
+                correct: "Musculocutaneous nerve",
+                explanation: "Musculocutaneous nerve pierces coracobrachialis; innervates it."
+            },
+            {
+                question: "The brachialis inserts on:",
+                options: ["Radial tuberosity", "Coronoid process of ulna", "Olecranon", "Medial epicondyle"],
+                correct: "Coronoid process of ulna",
+                explanation: "Brachialis inserts on coronoid process of ulna; strong flexor."
+            },
+            {
+                question: "The tendon of biceps brachii protects:",
+                options: ["Radial nerve", "Brachial artery and median nerve", "Ulnar nerve", "Axillary nerve"],
+                correct: "Brachial artery and median nerve",
+                explanation: "Bicipital aponeurosis protects brachial artery and median nerve in cubital fossa."
+            },
+            {
+                question: "Which nerve is most likely injured with a lateral supracondylar fracture of humerus?",
+                options: ["Median nerve", "Radial nerve", "Ulnar nerve", "Musculocutaneous nerve"],
+                correct: "Radial nerve",
+                explanation: "Radial nerve passes anterior to lateral epicondyle; susceptible in lateral supracondylar fracture."
+            },
+            {
+                question: "Which nerve is most likely injured with a medial supracondylar fracture?",
+                options: ["Median nerve", "Radial nerve", "Ulnar nerve", "Musculocutaneous nerve"],
+                correct: "Median nerve",
+                explanation: "Median nerve passes anteriorly along medial epicondyle; prone to injury in medial supracondylar fractures."
+            },
+            {
+                question: "The brachial artery lies in which compartment?",
+                options: ["Posterior compartment", "Anterior compartment", "Both compartments", "Subcutaneous only"],
+                correct: "Anterior compartment",
+                explanation: "Brachial artery runs in anterior compartment of arm."
+            },
+            {
+                question: "The radial nerve provides sensory innervation to:",
+                options: ["Lateral forearm", "Posterior arm and forearm", "Medial hand", "Palmar surface"],
+                correct: "Posterior arm and forearm",
+                explanation: "Supplies posterior arm, forearm, and dorsolateral hand skin."
+            },
+            {
+                question: "The musculocutaneous nerve supplies:",
+                options: ["All forearm flexors", "Anterior arm muscles and lateral forearm skin", "Posterior arm muscles", "Medial arm skin"],
+                correct: "Anterior arm muscles and lateral forearm skin",
+                explanation: "Musculocutaneous nerve innervates coracobrachialis, biceps, brachialis, and lateral antebrachial cutaneous nerve."
+            },
+            {
+                question: "The median nerve supplies:",
+                options: ["Anterior forearm muscles except flexor carpi ulnaris", "Posterior forearm muscles", "Lateral arm muscles", "Posterior arm muscles"],
+                correct: "Anterior forearm muscles except flexor carpi ulnaris",
+                explanation: "Supplies most anterior forearm flexors, not flexor carpi ulnaris or ulnar half of flexor digitorum profundus."
+            },
+            {
+                question: "The ulnar nerve passes:",
+                options: ["Lateral to brachial artery", "Posterior to medial epicondyle", "Anterior to cubital fossa", "Through coracobrachialis"],
+                correct: "Posterior to medial epicondyle",
+                explanation: "Ulnar nerve passes posterior to medial epicondyle (\"funny bone\")."
+            },
+            {
+                question: "The brachial artery terminates by dividing into:",
+                options: ["Axillary and subclavian arteries", "Radial and ulnar arteries", "Profunda brachii and radial recurrent", "Radial artery only"],
+                correct: "Radial and ulnar arteries",
+                explanation: "Divides in cubital fossa into radial and ulnar arteries."
+            },
+            {
+                question: "The radial recurrent artery anastomoses with:",
+                options: ["Profunda brachii", "Radial collateral artery", "Superior ulnar collateral", "Median artery"],
+                correct: "Radial collateral artery",
+                explanation: "Forms part of elbow anastomoses; radial recurrent anastomoses with radial collateral artery."
+            },
+            {
+                question: "The ulnar collateral arteries anastomose around the elbow with:",
+                options: ["Radial recurrent arteries", "Posterior and anterior ulnar recurrent arteries", "Profunda brachii artery", "Axillary artery"],
+                correct: "Posterior and anterior ulnar recurrent arteries",
+                explanation: "Superior and inferior ulnar collateral arteries anastomose with posterior and anterior ulnar recurrent arteries."
+            },
+            {
+                question: "The lateral cutaneous nerve of forearm is sensory to:",
+                options: ["Lateral forearm", "Medial forearm", "Posterior forearm", "Palm"],
+                correct: "Lateral forearm",
+                explanation: "Terminal branch of musculocutaneous nerve."
+            },
+            {
+                question: "The brachial artery can be palpated:",
+                options: ["Lateral biceps tendon", "Medial biceps tendon", "Posterior humerus", "Lateral epicondyle"],
+                correct: "Medial biceps tendon",
+                explanation: "Lies medial to biceps tendon in cubital fossa."
+            },
+            {
+                question: "The axillary nerve supplies:",
+                options: ["Deltoid and teres minor", "Biceps and brachialis", "Triceps", "Coracobrachialis"],
+                correct: "Deltoid and teres minor",
+                explanation: "Terminal branch of posterior cord; deltoid motor, teres minor motor."
+            },
+            {
+                question: "The posterior compartment of the arm is supplied by:",
+                options: ["Musculocutaneous nerve", "Radial nerve", "Median nerve", "Ulnar nerve"],
+                correct: "Radial nerve",
+                explanation: "Radial nerve innervates triceps and anconeus."
+            },
+            {
+                question: "The coracobrachialis assists in:",
+                options: ["Shoulder flexion and adduction", "Elbow extension", "Forearm pronation", "Shoulder abduction"],
+                correct: "Shoulder flexion and adduction",
+                explanation: "Weak flexor and adductor of shoulder; pierced by musculocutaneous nerve."
+            },
+            {
+                question: "The biceps brachii is a strong:",
+                options: ["Elbow extensor", "Elbow flexor and forearm supinator", "Shoulder abductor", "Triceps antagonist"],
+                correct: "Elbow flexor and forearm supinator",
+                explanation: "Flexes elbow and supinates forearm."
+            },
+            {
+                question: "The brachial artery lies:",
+                options: ["Posterior to humerus", "In anterior compartment, medial to median nerve distally", "Lateral to radial nerve throughout", "Deep to triceps only"],
+                correct: "In anterior compartment, medial to median nerve distally",
+                explanation: "Anterior compartment; initially lateral, crosses to medial."
+            },
+            {
+                question: "The radial nerve passes posteriorly through:",
+                options: ["Intertubercular groove", "Triangular interval", "Cubital fossa", "Medial epicondyle"],
+                correct: "Triangular interval",
+                explanation: "Exits axilla through triangular interval with profunda brachii."
+            },
+            {
+                question: "The musculocutaneous nerve:",
+                options: ["Lies lateral to biceps tendon in cubital fossa", "Lies medial to brachial artery", "Lies posterior to humerus", "Pierces triceps"],
+                correct: "Lies lateral to biceps tendon in cubital fossa",
+                explanation: "Terminal lateral antebrachial cutaneous nerve emerges lateral to biceps tendon."
+            },
+            {
+                question: "Which nerve is most vulnerable in mid-shaft humerus fracture?",
+                options: ["Musculocutaneous", "Radial", "Median", "Ulnar"],
+                correct: "Radial",
+                explanation: "Radial nerve in radial groove at mid-shaft."
+            },
+            {
+                question: "Which nerve is most vulnerable in surgical neck fracture?",
+                options: ["Axillary", "Radial", "Median", "Musculocutaneous"],
+                correct: "Axillary",
+                explanation: "Axillary nerve winds around surgical neck."
+            },
+            {
+                question: "The biceps tendon inserts on:",
+                options: ["Radial tuberosity", "Coronoid process", "Medial epicondyle", "Olecranon"],
+                correct: "Radial tuberosity",
+                explanation: "Inserts on radial tuberosity, allows supination and flexion."
+            },
+            {
+                question: "The brachialis inserts on:",
+                options: ["Coronoid process of ulna", "Radial tuberosity", "Olecranon", "Lateral epicondyle"],
+                correct: "Coronoid process of ulna",
+                explanation: "Main elbow flexor."
+            },
+            {
+                question: "The lateral epicondyle gives origin to:",
+                options: ["Flexor muscles", "Extensor muscles", "Biceps brachii", "Triceps"],
+                correct: "Extensor muscles",
+                explanation: "Common extensor tendon origin."
+            },
+            {
+                question: "The medial epicondyle gives origin to:",
+                options: ["Extensor muscles", "Flexor muscles", "Triceps", "Coracobrachialis"],
+                correct: "Flexor muscles",
+                explanation: "Common flexor tendon origin."
+            },
+                       {
+                question: "The ossification center for the shaft (diaphysis) of the humerus appears at:",
+                options: ["Birth", "2 months", "8 weeks in utero", "12 years"],
+                correct: "Birth",
+                explanation: "Primary ossification of the humeral shaft (diaphysis) begins at birth or late fetal period."
+            },
+            {
+                question: "The ossification center for the humeral head (proximal epiphysis) appears at:",
+                options: ["Birth", "4–6 months", "1 year", "5 years"],
+                correct: "1 year",
+                explanation: "The proximal epiphysis ossifies around 1 year of age."
+            },
+            {
+                question: "The ossification center for the lateral condyle of the humerus appears at:",
+                options: ["1 year", "3–4 years", "8 years", "10 years"],
+                correct: "3–4 years",
+                explanation: "Lateral condyle ossifies around 3–4 years; important clinically for pediatric fractures."
+            },
+            {
+                question: "The medial epicondyle ossifies at:",
+                options: ["2 years", "5–7 years", "10 years", "12 years"],
+                correct: "5–7 years",
+                explanation: "Medial epicondyle ossification occurs 5–7 years; injury can affect ulnar nerve."
+            },
+            {
+                question: "The ossification of the distal humeral epiphysis completes fusion by:",
+                options: ["5–7 years", "11–13 years", "14–17 years", "20 years"],
+                correct: "14–17 years",
+                explanation: "Distal epiphysis fuses with shaft around 14–17 years."
+            },
+            {
+                question: "The radial nerve passes:",
+                options: ["Between lateral and medial heads of triceps", "Medial to brachial artery", "Through coracobrachialis", "Lateral to median nerve"],
+                correct: "Between lateral and medial heads of triceps",
+                explanation: "Radial nerve runs in radial groove between lateral and medial heads of triceps."
+            },
+            {
+                question: "The ulnar nerve is vulnerable at:",
+                options: ["Mid-shaft humerus", "Posterior to medial epicondyle", "Surgical neck of humerus", "Cubital fossa lateral border"],
+                correct: "Posterior to medial epicondyle",
+                explanation: "Posterior to medial epicondyle; \"funny bone\" site; prone to injury."
+            },
+            {
+                question: "The median nerve is vulnerable at:",
+                options: ["Mid-shaft humerus", "Cubital fossa", "Surgical neck", "Posterior arm"],
+                correct: "Cubital fossa",
+                explanation: "Passes through cubital fossa; can be injured in supracondylar fractures."
+            },
+            {
+                question: "The brachial artery gives off which major branch to posterior compartment?",
+                options: ["Profunda brachii artery", "Radial artery", "Ulnar artery", "Superior ulnar collateral"],
+                correct: "Profunda brachii artery",
+                explanation: "Profunda brachii supplies posterior compartment muscles with radial nerve."
+            },
+            {
+                question: "The radial collateral artery is a branch of:",
+                options: ["Brachial artery", "Profunda brachii artery", "Axillary artery", "Radial artery"],
+                correct: "Profunda brachii artery",
+                explanation: "Radial collateral artery participates in elbow anastomosis; branch of profunda brachii."
+            },
+            {
+                question: "The medial intermuscular septum separates:",
+                options: ["Anterior and posterior compartments", "Arm and forearm", "Radial and ulnar arteries", "Biceps and brachialis"],
+                correct: "Anterior and posterior compartments",
+                explanation: "Septa divide anterior (flexor) and posterior (extensor) compartments."
+            },
+            {
+                question: "The lateral intermuscular septum separates:",
+                options: ["Triceps from biceps", "Arm from forearm", "Median from radial nerve", "Brachialis from coracobrachialis"],
+                correct: "Triceps from biceps",
+                explanation: "Lateral septum separates posterior compartment from anterior muscles."
+            },
+            {
+                question: "Injury to the long thoracic nerve affects:",
+                options: ["Biceps function", "Coracobrachialis", "Serratus anterior (winged scapula)", "Triceps"],
+                correct: "Serratus anterior (winged scapula)",
+                explanation: "Though not directly arm, long thoracic injury indirectly affects shoulder stability."
+            },
+            {
+                question: "The brachial artery is clinically compressed:",
+                options: ["Against humerus", "Against ulna", "Against radius", "Against scapula"],
+                correct: "Against humerus",
+                explanation: "Compressible against humerus to control bleeding in arm."
+            },
+            {
+                question: "The cubital fossa contains:",
+                options: ["Brachial artery, median nerve, biceps tendon", "Radial nerve, ulnar artery, triceps", "Axillary artery, median nerve, coracobrachialis", "Profunda brachii, radial nerve, brachialis"],
+                correct: "Brachial artery, median nerve, biceps tendon",
+                explanation: "Triangular space; floor = brachialis and supinator; roof = bicipital aponeurosis."
+            },
+            {
+                question: "The lateral cord of brachial plexus gives rise to:",
+                options: ["Musculocutaneous nerve", "Ulnar nerve", "Axillary nerve", "Radial nerve"],
+                correct: "Musculocutaneous nerve",
+                explanation: "Lateral cord gives musculocutaneous and lateral part of median nerve."
+            },
+            {
+                question: "The medial cord of brachial plexus gives rise to:",
+                options: ["Ulnar nerve", "Musculocutaneous nerve", "Radial nerve", "Axillary nerve"],
+                correct: "Ulnar nerve",
+                explanation: "Medial cord gives ulnar and medial part of median nerve."
+            },
+            {
+                question: "The radial nerve provides motor supply to:",
+                options: ["Anterior arm", "Posterior arm", "Flexors of forearm", "Hand intrinsics"],
+                correct: "Posterior arm",
+                explanation: "Supplies triceps and anconeus; posterior compartment."
+            },
+            {
+                question: "The biceps reflex tests which nerve roots?",
+                options: ["C5–C6", "C7–C8", "C4–C5", "T1–T2"],
+                correct: "C5–C6",
+                explanation: "Musculocutaneous nerve; C5–C6 roots."
+            },
+            {
+                question: "The brachial artery is palpable at:",
+                options: ["Lateral biceps tendon", "Medial biceps tendon", "Posterior arm", "Lateral epicondyle"],
+                correct: "Medial biceps tendon",
+                explanation: "Lies medial to biceps tendon in cubital fossa."
+            },
+            {
+                question: "The radial nerve pierces:",
+                options: ["Coracobrachialis", "Lateral intermuscular septum", "Supinator", "Medial epicondyle"],
+                correct: "Lateral intermuscular septum",
+                explanation: "Pierces lateral intermuscular septum to anterior compartment near elbow."
+            },
+            {
+                question: "The musculocutaneous nerve pierces:",
+                options: ["Coracobrachialis", "Brachialis", "Triceps", "Deltoid"],
+                correct: "Coracobrachialis",
+                explanation: "Motor to coracobrachialis; continues as lateral cutaneous nerve of forearm."
+            },
+            {
+                question: "Injury to radial nerve at radial groove leads to:",
+                options: ["Wrist drop", "Loss of supination only", "Loss of shoulder abduction", "Loss of elbow flexion"],
+                correct: "Wrist drop",
+                explanation: "Wrist extensors paralyzed; triceps may be partially spared."
+            },
+            {
+                question: "The biceps brachii short head synergist in flexion:",
+                options: ["Brachialis", "Triceps", "Deltoid", "Anconeus"],
+                correct: "Brachialis",
+                explanation: "Brachialis is main elbow flexor; biceps assists."
+            },
+            {
+                question: "The brachialis is deep to:",
+                options: ["Triceps", "Biceps brachii", "Deltoid", "Coracobrachialis"],
+                correct: "Biceps brachii",
+                explanation: "Lies deep to biceps; inserts on coronoid process of ulna."
+            },
+            {
+                question: "The triceps tendon inserts on:",
+                options: ["Radial tuberosity", "Olecranon process", "Coronoid process", "Medial epicondyle"],
+                correct: "Olecranon process",
+                explanation: "Olecranon; chief extensor of elbow."
+            },
+            {
+                question: "Injury to the axillary nerve affects:",
+                options: ["Deltoid and teres minor", "Biceps", "Triceps", "Coracobrachialis"],
+                correct: "Deltoid and teres minor",
+                explanation: "Weak shoulder abduction; atrophy of deltoid."
+            },
+            {
+                question: "The brachial artery is accompanied by:",
+                options: ["Median nerve", "Radial nerve", "Ulnar nerve", "Axillary nerve"],
+                correct: "Median nerve",
+                explanation: "Medial to brachial artery distally; important in cubital fossa."
+            },
+            {
+                question: "The anconeus is supplied by:",
+                options: ["Radial nerve", "Median nerve", "Ulnar nerve", "Musculocutaneous nerve"],
+                correct: "Radial nerve",
+                explanation: "Small extensor assisting triceps; stabilizes elbow."
+            },
+            {
+                question: "The lateral epicondyle is origin of:",
+                options: ["Flexor muscles", "Extensor muscles", "Biceps", "Triceps"],
+                correct: "Extensor muscles",
+                explanation: "Common extensor tendon origin."
+            },
+            {
+                question: "The medial epicondyle is origin of:",
+                options: ["Flexor muscles", "Extensor muscles", "Biceps", "Triceps"],
+                correct: "Flexor muscles",
+                explanation: "Common flexor tendon origin."
+            },
+            {
+                question: "The brachial artery divides into:",
+                options: ["Radial and ulnar arteries", "Axillary and subclavian", "Profunda brachii and radial recurrent", "Radial artery only"],
+                correct: "Radial and ulnar arteries",
+                explanation: "Cubital fossa division; main supply to forearm."
+            },
+            {
+                question: "The posterior compartment of arm muscles are:",
+                options: ["Biceps brachii, brachialis", "Triceps, anconeus", "Coracobrachialis", "Deltoid"],
+                correct: "Triceps, anconeus",
+                explanation: "Extensors; innervated by radial nerve."
+            },
+            {
+                question: "The brachial artery is a continuation of:",
+                options: ["Subclavian artery", "Axillary artery", "Radial artery", "Ulnar artery"],
+                correct: "Axillary artery",
+                explanation: "Axillary artery continues as brachial artery at lower border of teres major."
+            },
+            {
+                question: "The brachial artery gives off:",
+                options: ["Profunda brachii", "Radial recurrent", "Superior ulnar collateral", "All of the above"],
+                correct: "All of the above",
+                explanation: "Multiple branches for anterior/posterior compartment and elbow anastomosis."
+            },
+            {
+                question: "The lateral intermuscular septum separates:",
+                options: ["Biceps from triceps", "Brachialis from brachioradialis", "Coracobrachialis from biceps", "Deltoid from triceps"],
+                correct: "Biceps from triceps",
+                explanation: "Fibrous septum separating anterior and posterior compartments."
+            },
+            {
+                question: "The brachialis is innervated by:",
+                options: ["Musculocutaneous", "Radial", "Both", "Median"],
+                correct: "Both",
+                explanation: "Mainly musculocutaneous; small lateral portion by radial nerve."
+            },
+            {
+                question: "The biceps tendon is palpable:",
+                options: ["Medially in cubital fossa", "Laterally in cubital fossa", "Posterior arm", "Lateral epicondyle"],
+                correct: "Medially in cubital fossa",
+                explanation: "Medial to tendon of biceps; anterior to brachial artery."
+            },
+            {
+                question: "The radial nerve in mid-arm injury leads to:",
+                options: ["Wrist drop", "Inability to flex elbow", "Loss of supination", "Loss of pronation"],
+                correct: "Wrist drop",
+                explanation: "Extensor paralysis; triceps partially spared."
+            },
+            {
+                question: "The musculocutaneous nerve injury results in:",
+                options: ["Weak elbow flexion", "Loss of wrist extension", "Loss of forearm supination", "Loss of shoulder abduction"],
+                correct: "Weak elbow flexion",
+                explanation: "Supplies biceps and brachialis; weak flexion."
+            },
+            {
+                question: "The biceps brachii is strongest during:",
+                options: ["Pronation", "Supination", "Neutral", "Flexion with pronation"],
+                correct: "Supination",
+                explanation: "Supinated forearm; tendon on radial tuberosity maximally efficient."
+            },
+            {
+                question: "The brachial artery is found:",
+                options: ["Superficial in cubital fossa", "Deep to triceps", "Between humeral heads", "Lateral to median nerve throughout"],
+                correct: "Superficial in cubital fossa",
+                explanation: "Easily palpable; compression site."
+            },
+            {
+                question: "The posterior compartment muscles action:",
+                options: ["Flexion", "Extension", "Abduction", "Adduction"],
+                correct: "Extension",
+                explanation: "Triceps and anconeus; extend elbow."
+            },
+            {
+                question: "The anterior compartment muscles action:",
+                options: ["Flexion", "Extension", "Abduction", "Adduction"],
+                correct: "Flexion",
+                explanation: "Biceps, brachialis, coracobrachialis; flex elbow."
+            },
+            {
+                question: "The coracobrachialis assists in:",
+                options: ["Flexion and adduction of shoulder", "Elbow extension", "Wrist flexion", "Forearm pronation"],
+                correct: "Flexion and adduction of shoulder",
+                explanation: "Weak flexor/adductor; pierced by musculocutaneous nerve."
+            },
+            {
+                question: "The biceps brachii assists in:",
+                options: ["Elbow flexion and forearm supination", "Elbow extension", "Wrist flexion", "Shoulder abduction"],
+                correct: "Elbow flexion and forearm supination",
+                explanation: "Supinated forearm; attaches to radial tuberosity."
+            },
+            {
+                question: "The triceps long head is antagonistic to:",
+                options: ["Biceps brachii", "Brachialis", "Coracobrachialis", "Deltoid"],
+                correct: "Biceps brachii",
+                explanation: "Triceps extends elbow; biceps flexes."
+            },
+            {
+                question: "The anconeus stabilizes:",
+                options: ["Elbow during extension", "Shoulder during abduction", "Forearm during pronation", "Wrist during flexion"],
+                correct: "Elbow during extension",
+                explanation: "Small stabilizer assisting triceps."
+            },
+            {
+                question: "The lateral cutaneous nerve of forearm supplies:",
+                options: ["Lateral forearm skin", "Medial forearm", "Posterior arm", "Palm"],
+                correct: "Lateral forearm skin",
+                explanation: "Terminal branch of musculocutaneous nerve."
+            },
+            {
+                question: "The radial nerve terminal branches are:",
+                options: ["Superficial (sensory) and deep (motor)", "Muscular and cutaneous only", "Lateral and medial", "Anterior and posterior"],
+                correct: "Superficial (sensory) and deep (motor)",
+                explanation: "Deep branch pierces supinator (posterior interosseous nerve); superficial branch sensory."
+            },
+             {
+                question: "The most common site of humeral fracture in adults is:",
+                options: ["Surgical neck", "Mid-shaft", "Distal epiphysis", "Greater tubercle"],
+                correct: "Surgical neck",
+                explanation: "Surgical neck fractures are common in adults due to falls; risk to axillary nerve."
+            },
+            {
+                question: "Mid-shaft humeral fractures endanger which nerve?",
+                options: ["Median", "Radial", "Axillary", "Ulnar"],
+                correct: "Radial",
+                explanation: "Radial nerve runs in radial (spiral) groove along mid-shaft."
+            },
+            {
+                question: "Supracondylar fractures in children most commonly affect:",
+                options: ["Axillary nerve", "Median nerve", "Radial nerve", "Ulnar nerve"],
+                correct: "Median nerve",
+                explanation: "Median nerve most at risk in extension-type supracondylar fractures; brachial artery can also be injured."
+            },
+            {
+                question: "The posterior interosseous nerve is a continuation of:",
+                options: ["Radial nerve", "Musculocutaneous nerve", "Median nerve", "Ulnar nerve"],
+                correct: "Radial nerve",
+                explanation: "Deep branch of radial nerve after piercing supinator; motor to posterior forearm."
+            },
+            {
+                question: "The superficial branch of radial nerve is:",
+                options: ["Motor to triceps", "Sensory to dorsolateral hand", "Motor to supinator", "Sensory to lateral forearm"],
+                correct: "Sensory to dorsolateral hand",
+                explanation: "Provides sensation to dorsum of lateral hand; no motor function."
+            },
+            {
+                question: "The medial head of triceps arises from:",
+                options: ["Posterior humerus below radial groove", "Posterior humerus above radial groove", "Infraglenoid tubercle", "Lateral epicondyle"],
+                correct: "Posterior humerus below radial groove",
+                explanation: "Deep, powerful head for sustained extension."
+            },
+            {
+                question: "The lateral head of triceps arises from:",
+                options: ["Posterior humerus above radial groove", "Posterior humerus below radial groove", "Infraglenoid tubercle", "Coracoid process"],
+                correct: "Posterior humerus above radial groove",
+                explanation: "Superficial; helps with strong extension."
+            },
+            {
+                question: "The long head of triceps arises from:",
+                options: ["Infraglenoid tubercle of scapula", "Posterior humerus", "Lateral epicondyle", "Medial epicondyle"],
+                correct: "Infraglenoid tubercle of scapula",
+                explanation: "Crosses shoulder; contributes to adduction and extension of arm."
+            },
+            {
+                question: "The biceps brachii long head tendon passes through:",
+                options: ["Intertubercular sulcus", "Cubital fossa", "Carpal tunnel", "Lateral epicondyle"],
+                correct: "Intertubercular sulcus",
+                explanation: "Runs in bicipital groove; stabilizes shoulder joint."
+            },
+            {
+                question: "The biceps brachii short head arises from:",
+                options: ["Coracoid process", "Supraglenoid tubercle", "Infraglenoid tubercle", "Greater tubercle"],
+                correct: "Coracoid process",
+                explanation: "Short head stabilizes shoulder; joins long head distally."
+            },
+            {
+                question: "The brachialis is innervated by:",
+                options: ["Musculocutaneous nerve (mainly) and small contribution from radial nerve", "Radial nerve only", "Median nerve only", "Ulnar nerve only"],
+                correct: "Musculocutaneous nerve (mainly) and small contribution from radial nerve",
+                explanation: "Powerful elbow flexor; deep to biceps."
+            },
+            {
+                question: "The coracobrachialis is pierced by:",
+                options: ["Musculocutaneous nerve", "Radial nerve", "Median nerve", "Ulnar nerve"],
+                correct: "Musculocutaneous nerve",
+                explanation: "Motor to coracobrachialis; continues as lateral antebrachial cutaneous nerve."
+            },
+            {
+                question: "The anconeus assists in:",
+                options: ["Elbow extension", "Elbow flexion", "Forearm supination", "Shoulder abduction"],
+                correct: "Elbow extension",
+                explanation: "Stabilizes elbow during extension; small posterior muscle."
+            },
+            {
+                question: "The cubital fossa roof contains:",
+                options: ["Bicipital aponeurosis", "Brachialis", "Brachial artery", "Triceps tendon"],
+                correct: "Bicipital aponeurosis",
+                explanation: "Fascia and bicipital aponeurosis; protects vessels and median nerve."
+            },
+            {
+                question: "The floor of the cubital fossa is formed by:",
+                options: ["Brachialis and supinator muscles", "Triceps", "Coracobrachialis", "Deltoid"],
+                correct: "Brachialis and supinator muscles",
+                explanation: "Provides muscular floor beneath vessels and nerves."
+            },
+            {
+                question: "The brachial artery ends by dividing into:",
+                options: ["Radial and ulnar arteries", "Axillary and subclavian", "Profunda brachii and radial recurrent", "Radial artery only"],
+                correct: "Radial and ulnar arteries",
+                explanation: "Occurs in cubital fossa."
+            },
+            {
+                question: "The lateral cutaneous nerve of forearm is sensory to:",
+                options: ["Lateral forearm", "Medial forearm", "Posterior arm", "Palm"],
+                correct: "Lateral forearm",
+                explanation: "Terminal branch of musculocutaneous nerve."
+            },
+            {
+                question: "The radial nerve runs with:",
+                options: ["Profunda brachii artery", "Brachial artery", "Ulnar artery", "Axillary artery"],
+                correct: "Profunda brachii artery",
+                explanation: "Spiral groove of humerus; posterior compartment."
+            },
+            {
+                question: "The median nerve crosses the brachial artery:",
+                options: ["From lateral to medial in distal arm", "Medial to lateral", "Posterior to humerus", "Lateral to radial nerve throughout"],
+                correct: "From lateral to medial in distal arm",
+                explanation: "Important clinically for catheterization and fractures."
+            },
+            {
+                question: "The ulnar nerve passes:",
+                options: ["Posterior to medial epicondyle", "Medial to brachial artery", "Anterior cubital fossa", "Lateral to biceps tendon"],
+                correct: "Posterior to medial epicondyle",
+                explanation: "\"Funny bone\" location; vulnerable to trauma."
+            },
+            {
+                question: "The biceps reflex tests:",
+                options: ["Musculocutaneous nerve, C5–C6", "Radial nerve, C7", "Median nerve, C6", "Ulnar nerve, C8"],
+                correct: "Musculocutaneous nerve, C5–C6",
+                explanation: "Quick tap over biceps tendon; elbow flexion occurs."
+            },
+            {
+                question: "The triceps reflex tests:",
+                options: ["Radial nerve, C7", "Musculocutaneous nerve, C6", "Median nerve, C6", "Ulnar nerve, C8"],
+                correct: "Radial nerve, C7",
+                explanation: "Tap over triceps tendon; extension of elbow."
+            },
+            {
+                question: "The median nerve in the arm:",
+                options: ["Initially lateral to brachial artery, crosses to medial", "Medial throughout", "Lateral throughout", "Pierces coracobrachialis"],
+                correct: "Initially lateral to brachial artery, crosses to medial",
+                explanation: "Important for surgical approaches."
+            },
+            {
+                question: "The radial nerve injury in mid-shaft fracture leads to:",
+                options: ["Wrist drop", "Loss of supination only", "Shoulder weakness", "Weak elbow flexion"],
+                correct: "Wrist drop",
+                explanation: "Extensor paralysis; wrist unable to extend."
+            },
+            {
+                question: "The axillary nerve injury affects:",
+                options: ["Deltoid and teres minor", "Biceps", "Triceps", "Coracobrachialis"],
+                correct: "Deltoid and teres minor",
+                explanation: "Weak abduction; shoulder contour changes."
+            },
+            {
+                question: "The musculocutaneous nerve injury affects:",
+                options: ["Flexion of elbow and lateral forearm sensation", "Wrist extension", "Shoulder abduction", "Triceps function"],
+                correct: "Flexion of elbow and lateral forearm sensation",
+                explanation: "Supplies coracobrachialis, biceps, brachialis; continues as lateral cutaneous nerve."
+            },
+            {
+                question: "The biceps tendon attaches to:",
+                options: ["Radial tuberosity", "Coronoid process", "Medial epicondyle", "Olecranon"],
+                correct: "Radial tuberosity",
+                explanation: "Distal insertion; allows flexion and supination."
+            },
+            {
+                question: "The brachialis inserts on:",
+                options: ["Coronoid process of ulna", "Radial tuberosity", "Olecranon", "Medial epicondyle"],
+                correct: "Coronoid process of ulna",
+                explanation: "Strong flexor of elbow; deep to biceps."
+            },
+            {
+                question: "The triceps inserts on:",
+                options: ["Olecranon", "Radial tuberosity", "Medial epicondyle", "Coronoid process"],
+                correct: "Olecranon",
+                explanation: "Chief elbow extensor."
+            },
+            {
+                question: "The biceps is strongest in:",
+                options: ["Supination", "Pronation", "Neutral", "Flexion with pronation"],
+                correct: "Supination",
+                explanation: "Supinated position maximizes mechanical advantage."
+            },
+            {
+                question: "The brachial artery is palpable:",
+                options: ["Medial to biceps tendon", "Lateral to biceps tendon", "Posterior humerus", "Lateral epicondyle"],
+                correct: "Medial to biceps tendon",
+                explanation: "Compression site; important in hemorrhage control."
+            },
+            {
+                question: "The profunda brachii artery accompanies:",
+                options: ["Radial nerve in spiral groove", "Median nerve", "Ulnar nerve", "Axillary nerve"],
+                correct: "Radial nerve in spiral groove",
+                explanation: "Supplies posterior compartment."
+            },
+            {
+                question: "The cubital fossa contains:",
+                options: ["Biceps tendon, brachial artery, median nerve", "Radial nerve, ulnar artery, triceps", "Axillary artery, median nerve", "Profunda brachii, radial nerve, brachialis"],
+                correct: "Biceps tendon, brachial artery, median nerve",
+                explanation: "Triangular space; anterior compartment."
+            },
+            {
+                question: "The lateral epicondyle gives origin to:",
+                options: ["Extensor muscles", "Flexor muscles", "Biceps", "Triceps"],
+                correct: "Extensor muscles",
+                explanation: "Common extensor tendon origin."
+            },
+            {
+                question: "The medial epicondyle gives origin to:",
+                options: ["Flexor muscles", "Extensor muscles", "Triceps", "Coracobrachialis"],
+                correct: "Flexor muscles",
+                explanation: "Common flexor tendon origin."
+            },
+            {
+                question: "The bicipital aponeurosis inserts into:",
+                options: ["Brachial fascia", "Radial tuberosity", "Olecranon", "Medial epicondyle"],
+                correct: "Brachial fascia",
+                explanation: "Protects brachial artery and median nerve."
+            },
+            {
+                question: "The biceps tendon is palpable in:",
+                options: ["Cubital fossa", "Mid-arm", "Posterior arm", "Lateral epicondyle"],
+                correct: "Cubital fossa",
+                explanation: "Easily identified; site for reflex testing."
+            },
+            {
+                question: "The brachial artery is in which compartment?",
+                options: ["Anterior", "Posterior", "Both", "Subcutaneous"],
+                correct: "Anterior",
+                explanation: "Anterior compartment; medial to median nerve distally."
+            },
+            {
+                question: "The radial nerve is accompanied by which artery?",
+                options: ["Profunda brachii", "Brachial", "Ulnar", "Axillary"],
+                correct: "Profunda brachii",
+                explanation: "Spiral groove; posterior compartment supply."
+            },
+            {
+                question: "The median nerve in distal arm:",
+                options: ["Crosses brachial artery to medial side", "Remains lateral", "Posterior to humerus", "Pierces coracobrachialis"],
+                correct: "Crosses brachial artery to medial side",
+                explanation: "Important for clinical approaches and fracture assessment."
+            },
+            {
+                question: "The ulnar nerve passes:",
+                options: ["Posterior to medial epicondyle", "Anterior cubital fossa", "Lateral to biceps tendon", "Deep to brachialis"],
+                correct: "Posterior to medial epicondyle",
+                explanation: "Vulnerable; \"funny bone\" site."
+            },
+            {
+                question: "The biceps reflex tests:",
+                options: ["C5–C6, musculocutaneous nerve", "C7, radial nerve", "C6, median nerve", "C8, ulnar nerve"],
+                correct: "C5–C6, musculocutaneous nerve",
+                explanation: "Quick elbow flexion response."
+            },
+            {
+                question: "The triceps reflex tests:",
+                options: ["C7, radial nerve", "C6, musculocutaneous", "C6, median", "C8, ulnar"],
+                correct: "C7, radial nerve",
+                explanation: "Extension of elbow."
+            },
+            {
+                question: "The axillary nerve injury affects:",
+                options: ["Deltoid and teres minor", "Biceps", "Triceps", "Coracobrachialis"],
+                correct: "Deltoid and teres minor",
+                explanation: "Weak abduction; atrophy of deltoid."
+            },
+            {
+                question: "The musculocutaneous nerve injury affects:",
+                options: ["Flexion of elbow, lateral forearm sensation", "Wrist extension", "Shoulder abduction", "Triceps function"],
+                correct: "Flexion of elbow, lateral forearm sensation",
+                explanation: "Supplies coracobrachialis, biceps, brachialis."
+            },
+            {
+                question: "The biceps inserts on:",
+                options: ["Radial tuberosity", "Coronoid process", "Medial epicondyle", "Olecranon"],
+                correct: "Radial tuberosity",
+                explanation: "Allows elbow flexion and supination."
+            },
+            {
+                question: "The brachialis inserts on:",
+                options: ["Coronoid process of ulna", "Radial tuberosity", "Olecranon", "Medial epicondyle"],
+                correct: "Coronoid process of ulna",
+                explanation: "Deep elbow flexor."
+            },
+            {
+                question: "The triceps inserts on:",
+                options: ["Olecranon", "Radial tuberosity", "Medial epicondyle", "Coronoid process"],
+                correct: "Olecranon",
+                explanation: "Chief elbow extensor."
+            },
+            {
+                question: "The biceps is strongest in:",
+                options: ["Supination", "Pronation", "Neutral", "Flexion with pronation"],
+                correct: "Supination",
+                explanation: "Mechanical advantage maximized in supination."
+            },
+            {
+                question: "The brachial artery is palpable:",
+                options: ["Medial to biceps tendon", "Lateral to biceps tendon", "Posterior humerus", "Lateral epicondyle"],
+                correct: "Medial to biceps tendon",
+                explanation: "Palpable at cubital fossa; compressible in hemorrhage."
+            }
+];
+document.addEventListener("DOMContentLoaded", () => {
+  document.body.classList.add("fade-in");
+
+  // Read settings from localStorage
+  const numQuestions = parseInt(localStorage.getItem("quizNumQuestions")) || 5;
+  const timerType = localStorage.getItem("quizTimerType") || "untimed";
+  const timeLimit = parseInt(localStorage.getItem("quizTimeLimit")) || 60;
+
+  // Shuffle function
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Select and shuffle questions
+  const randomizedQuestions = shuffle([...questionsArray]);
+  const selectedQuestions = randomizedQuestions.slice(0, Math.min(numQuestions, randomizedQuestions.length));
+
+  // Render questions
+  const quizContainer = document.getElementById("quizContainer");
+  quizContainer.innerHTML = "";
+
+  selectedQuestions.forEach((q, index) => {
+    const questionDiv = document.createElement("div");
+    questionDiv.classList.add("question-card");
+    questionDiv.innerHTML = `
+      <p><strong>Q${index + 1}:</strong> ${q.question}</p>
+      ${q.options.map((opt, optIdx) => 
+        `<button class="option" data-q="${index}" data-opt="${optIdx}">${opt}</button>`
+      ).join('')}
+    `;
+    quizContainer.appendChild(questionDiv);
+  });
+
+  // Initialize tracking variables
+  let attempted = 0;
+  const attemptedBox = document.getElementById("attempted");
+  const skippedBox = document.getElementById("skipped");
+  const progressBox = document.getElementById("progress");
+  
+  const answeredState = new Array(selectedQuestions.length).fill(false);
+  const selectedOptionIndex = new Array(selectedQuestions.length).fill(null);
+
+  // Update tracker display
+  function updateTracker() {
+    attemptedBox.textContent = attempted;
+    skippedBox.textContent = selectedQuestions.length - attempted;
+    progressBox.textContent = `${Math.round((attempted / selectedQuestions.length) * 100)}%`;
+  }
+
+  // Add event listeners to options
+  quizContainer.querySelectorAll(".option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const qIndex = parseInt(btn.dataset.q);
+      const optIndex = parseInt(btn.dataset.opt);
+      
+      // Get all options for this question
+      const questionOptions = btn.closest('.question-card').querySelectorAll('.option');
+      
+      // Remove selected class from all options in this question
+      questionOptions.forEach(opt => opt.classList.remove('selected'));
+      
+      // Add selected class to clicked option
+      btn.classList.add('selected');
+      
+      // Update tracking
+      if (!answeredState[qIndex]) {
+        answeredState[qIndex] = true;
+        attempted++;
+      }
+      selectedOptionIndex[qIndex] = optIndex;
+      
+      updateTracker();
+    });
+  });
+
+  // Timer functionality
+  const timerElement = document.getElementById("timer");
+  let timerInterval = null;
+
+  if (timerType === "timed") {
+    let timeRemaining = timeLimit * 60;
+    
+    const updateTimer = () => {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      if (timeRemaining <= 0) {
+        clearInterval(timerInterval);
+        submitQuiz();
+      }
+      timeRemaining--;
+    };
+
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+  } else {
+    timerElement.textContent = "Untimed";
+  }
+
+  // Submit quiz function WITH EXPLANATIONS AND CUSTOM MODAL
+  function submitQuiz() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
+
+    let score = 0;
+    let incorrectQuestions = [];
+    
+    // Evaluate answers and show explanations for incorrect ones
+    selectedQuestions.forEach((q, qIndex) => {
+      const selectedOptIndex = selectedOptionIndex[qIndex];
+      const questionCard = quizContainer.children[qIndex];
+      
+      // Create explanation div
+      let explanationDiv = questionCard.querySelector('.explanation');
+      if (!explanationDiv) {
+        explanationDiv = document.createElement('div');
+        explanationDiv.classList.add('explanation');
+        explanationDiv.innerHTML = `<strong>Explanation:</strong> ${q.explanation}`;
+        questionCard.appendChild(explanationDiv);
+      }
+
+      if (selectedOptIndex !== null) {
+        const selectedAnswer = q.options[selectedOptIndex];
+        const correctAnswer = q.correct;
+        
+        if (selectedAnswer === correctAnswer) {
+          score++;
+          // Don't show explanation for correct answers
+        } else {
+          // Show explanation only for incorrect answers
+          explanationDiv.classList.add('show');
+          incorrectQuestions.push({
+            question: q.question,
+            selected: selectedAnswer,
+            correct: correctAnswer,
+            explanation: q.explanation
+          });
+        }
+        
+        // Highlight correct/wrong answers
+        const options = questionCard.querySelectorAll('.option');
+        
+        options.forEach((opt, optIndex) => {
+          if (q.options[optIndex] === correctAnswer) {
+            opt.classList.add('correct');
+          } else if (optIndex === selectedOptIndex && selectedAnswer !== correctAnswer) {
+            opt.classList.add('wrong');
+          }
+        });
+      } else {
+        // Unanswered questions - show explanation and mark as incorrect
+        explanationDiv.classList.add('show');
+        incorrectQuestions.push({
+          question: q.question,
+          selected: "Not attempted",
+          correct: q.correct,
+          explanation: q.explanation
+        });
+        
+        // Highlight correct answer for unanswered questions
+        const options = questionCard.querySelectorAll('.option');
+        options.forEach((opt, optIndex) => {
+          if (q.options[optIndex] === q.correct) {
+            opt.classList.add('correct');
+          }
+        });
+      }
+    });
+
+    // Create results summary
+    const percentage = Math.round((score / selectedQuestions.length) * 100);
+    const resultsHTML = `
+      <div class="results-summary">
+        <div class="score-display">Your Score: ${score}/${selectedQuestions.length} (${percentage}%)</div>
+        ${incorrectQuestions.length > 0 ? `
+          <div style="margin: 10px 0;">Questions to review: ${incorrectQuestions.length}</div>
+          <button class="review-toggle" onclick="toggleAllExplanations()">
+            Show/Hide All Explanations
+          </button>
+        ` : '<div style="margin: 10px 0;">Perfect! All answers correct! 🎉</div>'}
+      </div>
+    `;
+    
+    // Insert results at the top
+    quizContainer.insertAdjacentHTML('afterbegin', resultsHTML);
+
+    // Show custom modal instead of alert
+    setTimeout(() => {
+      showCustomModal(score, selectedQuestions.length, percentage, incorrectQuestions.length);
+    }, 500);
+    
+    // Disable further interactions
+    quizContainer.querySelectorAll('.option').forEach(btn => {
+      btn.style.pointerEvents = 'none';
+    });
+    document.getElementById('submitQuiz').disabled = true;
+    
+    // Scroll to top to show results
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Function to toggle all explanations
+  window.toggleAllExplanations = function() {
+    const explanations = document.querySelectorAll('.explanation');
+    const allHidden = Array.from(explanations).every(exp => !exp.classList.contains('show'));
+    
+    explanations.forEach(exp => {
+      if (allHidden) {
+        exp.classList.add('show');
+      } else {
+        exp.classList.remove('show');
+      }
+    });
+    
+    // Update button text
+    const button = document.querySelector('.review-toggle');
+    if (button) {
+      button.textContent = allHidden ? 'Hide All Explanations' : 'Show All Explanations';
+    }
+  }
+
+  // Custom Modal Functions
+  function showCustomModal(score, total, percentage, incorrectCount) {
+    const modal = document.getElementById('customModal');
+    const modalScore = document.getElementById('modalScore');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalIcon = document.querySelector('.modal-icon');
+    
+    // Update modal content
+    modalScore.textContent = `${score}/${total} (${percentage}%)`;
+    
+    if (percentage === 100) {
+      modalIcon.textContent = '🎉';
+      modalMessage.textContent = 'Perfect score! Outstanding performance!';
+      createConfetti();
+    } else if (percentage >= 80) {
+      modalIcon.textContent = '⭐';
+      modalMessage.textContent = `Excellent work! Review ${incorrectCount} question(s) below.`;
+    } else if (percentage >= 60) {
+      modalIcon.textContent = '👍';
+      modalMessage.textContent = `Good effort! Review ${incorrectCount} question(s) to improve.`;
+    } else {
+      modalIcon.textContent = '💪';
+      modalMessage.textContent = `Keep practicing! Review ${incorrectCount} question(s) to learn more.`;
+    }
+    
+    // Show modal with animation
+    modal.classList.add('show');
+    setTimeout(() => {
+      document.querySelector('.modal-content').classList.add('show');
+    }, 100);
+  }
+
+  // Make closeModal globally accessible
+  window.closeModal = function() {
+    const modal = document.getElementById('customModal');
+    const modalContent = document.querySelector('.modal-content');
+    
+    if (modal && modalContent) {
+      modalContent.classList.remove('show');
+      setTimeout(() => {
+        modal.classList.remove('show');
+      }, 300);
+    }
+  }
+
+  function createConfetti() {
+    const modal = document.getElementById('customModal');
+    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+    
+    for (let i = 0; i < 50; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.left = Math.random() * 100 + '%';
+      confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      confetti.style.animationDelay = (Math.random() * 1) + 's';
+      modal.appendChild(confetti);
+      
+      // Remove confetti after animation
+      setTimeout(() => {
+        if (confetti.parentNode) {
+          confetti.remove();
+        }
+      }, 6000);
+    }
+  }
+
+  // Close modal when clicking outside content
+  document.getElementById('customModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeModal();
+    }
+  });
+
+  // Add submit event listener
+  document.getElementById("submitQuiz").addEventListener("click", submitQuiz);
+
+  // Initialize tracker
+  updateTracker();
+});
+  </script>
+ <!-- Custom Modal -->
+<div id="customModal" class="custom-modal">
+  <div class="modal-content">
+    <div class="modal-icon">🎯</div>
+    <h2 class="modal-title">Quiz Completed!</h2>
+    <div class="modal-score" id="modalScore">0/0 (0%)</div>
+    <p class="modal-message" id="modalMessage">Great job completing the quiz!</p>
+    <button class="modal-button" onclick="closeModal()">Continue Review</button>
+  </div>
+</div> 
+</body>
+</html>

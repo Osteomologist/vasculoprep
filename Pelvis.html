@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pelvis | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      background: linear-gradient(-45deg, #1a1a1a, #3b003b, #001d3b);
+      background-size: 400% 400%;
+      animation: gradientMove 12s ease infinite;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    body.fade-in { opacity: 1; }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: #c8c8ff;
+      margin-bottom: 50px;
+    }
+
+    .action-button {
+      width: 250px;
+      padding: 25px;
+      margin: 20px 0;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 15px;
+      color: white;
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    .action-button:hover {
+      box-shadow: 0 0 35px rgba(0,255,255,0.7);
+      transform: scale(1.05);
+    }
+
+    #backButton {
+      margin-top: 60px;
+      background: linear-gradient(90deg, #002aff, #7a00ff);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #backButton:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Pelvis</h1>
+    <div class="subtitle">Select an action below:</div>
+  </header>
+
+  <main>
+    <button class="action-button" id="takeQuiz">Take Quiz</button>
+    <button class="action-button" id="checkProgress">Check Progress</button>
+    <button id="backButton">← Back to Gross Anatomy</button>
+  </main>
+
+  <footer>
+    <p>© D Osteomologist 2025</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.add("fade-in");
+
+      const takeQuiz = document.getElementById("takeQuiz");
+      const checkProgress = document.getElementById("checkProgress");
+      const backButton = document.getElementById("backButton");
+
+      takeQuiz.addEventListener("click", () => {
+        document.body.classList.remove("fade-in");
+        setTimeout(() => {
+          window.location.href = "take-quiz.html"; // LINKED to take-quiz.html
+        }, 600);
+      });
+
+      checkProgress.addEventListener("click", () => {
+        alert("Loading your progress... (feature coming soon)");
+        // You can link to your progress page later
+      });
+
+      backButton.addEventListener("click", () => {
+        document.body.classList.remove("fade-in");
+        setTimeout(() => {
+          window.location.href = "gross-anatomy-regional.html"; // Go back to Regional Anatomy
+        }, 600);
+      });
+    });
+  </script>
+
+</body>
+</html>

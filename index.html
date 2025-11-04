@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VasculoPrep</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="styled-choice.html">Study Method</a></li>
+        <li><a href="#">Progress</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1>VasculoPrep</h1>
+    <p class="intro">Test your MBBS knowledge offline!</p>
+    <button id="chooseMethod">Choose Study Method</button>
+  </main>
+
+  <footer>
+    <p>© D Osteomologist 2025</p>
+    <small>Version 1.0 – Offline Beta</small>
+  </footer>
+
+<script>
+  // Prepare local storage structure
+  if (!localStorage.getItem("vasculoprep_progress")) {
+    localStorage.setItem("vasculoprep_progress", JSON.stringify({
+      totalSessions: 0,
+      lastAccessed: new Date().toISOString(),
+      masteryLevel: 0
+    }));
+  }
+
+  const button = document.getElementById("chooseMethod");
+  const methodLink = document.querySelector('a[href="styled-choice.html"]');
+
+  function smoothNavigate(url) {
+    document.body.classList.remove("fade-in"); // trigger fade-out
+    setTimeout(() => {
+      window.location.href = url;
+    }, 600); // match CSS transition duration
+  }
+
+  // Glow + fade for button
+  button.addEventListener("click", () => {
+    button.classList.add("glow");
+    setTimeout(() => button.classList.remove("glow"), 800);
+    smoothNavigate("styled-choice.html");
+  });
+
+  // Fade for top "Study Method" link
+  if (methodLink) {
+    methodLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      smoothNavigate("styled-choice.html");
+    });
+  }
+
+  // Fade-in on page load
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("fade-in");
+  });
+</script>
+
+</body>
+</html>

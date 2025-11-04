@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose Course | VasculoPrep</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="choose-course-page">
+  <header>
+    <h1>Choose Your Course</h1>
+  </header>
+
+  <main>
+    <div class="course-grid">
+      <div class="course-card" data-course="Gross Anatomy">Gross Anatomy</div>
+      <div class="course-card" data-course="Physiology">Physiology</div>
+      <div class="course-card" data-course="Biochemistry">Biochemistry</div>
+      <div class="course-card" data-course="Histology">Histology</div>
+      <div class="course-card" data-course="Embryology">Embryology</div>
+    </div>
+
+    <button id="backButton">← Back</button>
+  </main>
+
+  <footer>
+    <p>© D Osteomologist 2025</p>
+  </footer>
+
+<script>
+  const courseCards = document.querySelectorAll(".course-card");
+  const backButton = document.getElementById("backButton");
+
+  // Map each course to its page
+  const coursePages = {
+    "Gross Anatomy": "gross-anatomy.html",
+    "Physiology": "physiology.html",
+    "Biochemistry": "biochemistry.html",
+    "Histology": "histology.html",
+    "Embryology": "embryology.html"
+  };
+
+  // Handle course card clicks
+  courseCards.forEach(card => {
+    card.addEventListener("click", () => {
+      const selectedCourse = card.dataset.course;
+      localStorage.setItem("selectedCourse", selectedCourse);
+      card.classList.add("clicked");
+
+      setTimeout(() => {
+        card.classList.remove("clicked");
+
+        if(coursePages[selectedCourse]) {
+          // Fade out before navigation
+          document.body.classList.remove("fade-in");
+          setTimeout(() => {
+            window.location.href = coursePages[selectedCourse];
+          }, 600);
+        } else {
+          alert(`Opening ${selectedCourse}... (feature coming soon)`);
+        }
+
+      }, 700);
+    });
+  });
+
+  // Back button now goes to styled-choice.html
+  backButton.addEventListener("click", () => {
+    document.body.classList.remove("fade-in");
+    setTimeout(() => {
+      window.location.href = "styled-choice.html";
+    }, 600);
+  });
+
+  // Fade-in on page load
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("fade-in");
+  });
+</script>
+
+</body>
+</html>
